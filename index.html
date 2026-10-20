@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM School Alladher - Firebase Cloud Live Sync System</title>
+    <title>TM School Alladher - Perfect Gate Attendance & Admin System</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- HTML5 QR Code Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    <!-- Firebase App & Firestore SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-slate-900 font-sans text-slate-100 min-h-screen flex flex-col justify-between">
 
@@ -24,7 +20,7 @@
                 <span class="text-3xl">🏫</span>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide">TM School Alladher</h1>
-                    <p class="text-xs text-indigo-300">Cloud Live Sync Gate & Exam System</p>
+                    <p class="text-xs text-indigo-300">Smart Full-Screen Gate Attendance System</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -47,7 +43,7 @@
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
                         <span>📷</span> گیٹ اسکینر (آئی ڈی کارڈ سامنے لائیں)
                     </h2>
-                    <p class="text-xs text-slate-400">فائر بیس کلاؤڈ لائیو سنک کے ذریعے حاضری لگ رہی ہےـ</p>
+                    <p class="text-xs text-slate-400">سسٹم خودکار طریقے سے حاضری اور پرچہ اسکرین پر ظاہر کرے گاـ</p>
                 </div>
                 <button id="switch-camera-btn" title="کیمرا تبدیل کریں" 
                     class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1 border border-slate-600">
@@ -127,7 +123,7 @@
             <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
             
             <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
-                <span>⚙️</span> ایڈمن کنٹرول پینل (क्लाउड लाइव)
+                <span>⚙️</span> ایڈمن کنٹرول پینل (اسکول مینجمنٹ)
             </h2>
             <p class="text-xs text-slate-500 mb-4">پاس ورڈ درج کریں یا ایڈمن کیو آر کوڈ اسکین کریں۔</p>
 
@@ -162,7 +158,7 @@
                 <!-- Tab 1: Student Management -->
                 <div id="tab-content-students" class="space-y-4">
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-3">➕ نیا داخلہ دیں (کلائوڈ پر لائیو اپ ڈیٹ ہوگا)</h3>
+                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-3">➕ نیا داخلہ دیں اور ڈیجیٹل آئی ڈی کارڈ بنائیں</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                             <input type="text" id="new-student-name" placeholder="طالب علم کا نام" class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs">
                             <select id="new-student-class" class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
@@ -181,7 +177,7 @@
                     </div>
 
                     <div>
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">📋 تمام طلباء کی لسٹ (لائیو کلاؤڈ ڈیٹا)</h3>
+                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">📋 تمام طلباء کی لسٹ (آئی ڈی کارڈ پرنٹ اور حذف کریں)</h3>
                         <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-2xl p-2 space-y-2" id="admin-student-list"></div>
                     </div>
                 </div>
@@ -218,18 +214,18 @@
                             class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-slate-50 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                     </div>
                     <button onclick="saveExamPaper()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
-                        ✅ نیا پرچہ اپلوڈ کریں (لائیو سنک ہوگا)
+                        ✅ نیا پرچہ اپلوڈ کریں (پرانا ہٹا دیا جائے گا)
                     </button>
-                    <div id="admin-success-msg" class="text-xs text-emerald-600 font-semibold hidden text-center">🎉 پرچہ کامیابی سے کلاؤڈ پر اپلوڈ ہو گیا ہے!</div>
+                    <div id="admin-success-msg" class="text-xs text-emerald-600 font-semibold hidden text-center">🎉 پرچہ کامیابی سے اپلوڈ ہو گیا ہے!</div>
                 </div>
 
                 <!-- Tab 3: WhatsApp Absentees Notice -->
                 <div id="tab-content-whatsapp" class="space-y-4 hidden">
                     <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
                         <h3 class="font-bold text-xs text-emerald-900 uppercase mb-1">💬 غیر حاضر طلباء کو واٹس ایپ نوٹس بھیجیں</h3>
-                        <p class="text-[11px] text-emerald-700 mb-3">یہاں سے آپ ایک کلک پر غیر حاضر اسٹوڈنٹس کے والدین کو واٹس ایپ پر حاضری کا الرٹ بھیج سکتے ہیں۔</p>
+                        <p class="text-[11px] text-emerald-700 mb-3">یہاں سے آپ ایک کلک پر غیر حاضر اسٹوڈنٹس کے والدین کو واٹس ایپ پر حاضری کا الرٹ بھیج سکتے ہیںـ</p>
                         <div class="space-y-2 max-h-60 overflow-y-auto" id="whatsapp-absent-list">
-                            <div class="text-xs text-slate-500">لائیو ڈیٹا لوڈ ہو رہا ہے...</div>
+                            <div class="text-xs text-slate-500">آج تمام طلباء حاضر ہیں یا لسٹ لوڈ ہو رہی ہے...</div>
                         </div>
                     </div>
                 </div>
@@ -237,7 +233,7 @@
                 <!-- Tab 4: Recent Attendance Logs -->
                 <div id="tab-content-logs" class="space-y-4 hidden">
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">⚡ آج کی تازہ ترین حاضری کے لائیو لاگز</h3>
+                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">⚡ آج کی تازہ ترین حاضری کے لاگز</h3>
                         <div id="admin-recent-logs" class="max-h-60 overflow-y-auto space-y-1.5 text-xs font-mono">
                             <div class="text-slate-400 italic">ابھی تک کوئی اسکین نہیں ہوا...</div>
                         </div>
@@ -282,99 +278,11 @@
 
     <!-- Footer -->
     <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
-        TM School Alladher Gate Attendance System &copy; 2026-2027 | Firebase Cloud Sync Engine
+        TM School Alladher Gate Attendance System &copy; 2026-2027 | Full-Screen Clean Gate Engine
     </footer>
 
     <!-- Application Script -->
     <script>
-        // ==========================================
-        // FIREBASE CLOUD CONFIGURATION
-        // ==========================================
-        // (یہاں اپنی فائر بیس کی کنفیگریشن کی تفصیلات درج کریں)
-        const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "your-sender-id",
-            appId: "your-app-id"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        let students = [];
-        let examPapers = {};
-        let recentAttendanceLogs = [];
-
-        // Real-Time Cloud Sync using Firestore Listeners
-        function initRealtimeSync() {
-            // Listen to Students Collection
-            db.collection("students").onSnapshot((snapshot) => {
-                students = [];
-                snapshot.forEach((doc) => {
-                    students.push({ docId: doc.id, ...doc.data() });
-                });
-                renderAdminReport();
-                loadAdminStudentList();
-                loadWhatsappAbsentees();
-            });
-
-            // Listen to Exam Papers Collection
-            db.collection("examPapers").onSnapshot((snapshot) => {
-                examPapers = {};
-                snapshot.forEach((doc) => {
-                    examPapers[doc.id] = doc.data();
-                });
-            });
-
-            // Listen to Recent Logs Collection
-            db.collection("logs").orderBy("timestamp", "desc").limit(20).onSnapshot((snapshot) => {
-                recentAttendanceLogs = [];
-                snapshot.forEach((doc) => {
-                    recentAttendanceLogs.push(doc.data());
-                });
-                updateRecentLogsUI();
-            });
-        }
-
-        // Initialize default sample data to Firestore if empty
-        async function seedInitialData() {
-            const snapshot = await db.collection("students").get();
-            if (snapshot.empty) {
-                const rawStudentsData = {
-                    "Class 6": ["Ayesha", "Fatima", "Zainab", "Maryam", "Hafsa", "Khadija", "Amina", "Sana", "Hira", "Iqra", "Muhammad", "Ahmed", "Ali", "Hassan", "Hussain", "Abdullah", "Abdul Rahman", "Abdul Rehman", "Abdul Ahad", "Abdul Hadi"],
-                    "Class 7": ["Noor", "Mahnoor", "Laiba", "Eman", "Iman", "Dua", "Hania", "Anaya", "Inaya", "Areeba", "Abdul Basit", "Abdul Samad", "Abdul Wahab", "Abdul Malik", "Abdul Aziz", "Abdul Qadir", "Abdul Kareem", "Abdul Latif", "Abdul Rauf", "Abdul Ghaffar"],
-                    "Class 8": ["Aleena", "Alina", "Amna", "Anum", "Aqsa", "Asma", "Ayla", "Aiza", "Aiman", "Areej", "Ahmad", "Ahsan", "Ammar", "Anas", "Arham", "Arsalan", "Asad", "Awais", "Ayan", "Azan"],
-                    "Class 9": ["Arisha", "Arwa", "Abeer", "Afifa", "Afreen", "Afsheen", "Aisha", "Alishba", "Amara", "Amber", "Bilal", "Burhan", "Daniyal", "Danish", "Ehtisham", "Eesa", "Fahad", "Faizan", "Farhan", "Faris"],
-                    "Class 10": ["Anabia", "Anam", "Anila", "Anosha", "Aqila", "Arooba", "Asiya", "Ayla Noor", "Azka", "Bisma", "Fawad", "Fayaz", "Furqan", "Hamza", "Haris", "Haroon", "Hashir", "Hashim", "Hasnain", "Haseeb"],
-                    "Class 11": ["Bushra", "Baneen", "Bareera", "Batool", "Benish", "Bismah", "Chandni", "Dania", "Daniya", "Dareen", "Hassan Ali", "Haziq", "Huzaifa", "Ibrahim", "Idrees", "Ilyas", "Imran", "Irfan", "Isa", "Ishaq"],
-                    "Class 12": ["Deeba", "Dina", "Eesha", "Elaf", "Eliza", "Erica", "Erum", "Esra", "Fabiha", "Faiqa", "Ismail", "Junaid", "Kashan", "Kashif", "Khizar", "Luqman", "Maaz", "Mahad", "Maher", "Muhammad ubaid"]
-                };
-                let counter = 1001;
-                const batch = db.batch();
-                for (let [className, names] of Object.entries(rawStudentsData)) {
-                    names.forEach(name => {
-                        let studentRef = db.collection("students").doc(`TM-${counter}`);
-                        batch.set(studentRef, {
-                            id: `TM-${counter}`,
-                            schoolRoll: `SR-${counter}`,
-                            name: name,
-                            class: className,
-                            presentDays: 0,
-                            totalDays: 30,
-                            lastAttendanceDate: "",
-                            attendanceHistory: {},
-                            parentPhone: "923001234567"
-                        });
-                        counter++;
-                    });
-                }
-                await batch.commit();
-            }
-        }
-
         function updateClock() {
             const now = new Date();
             const options = { 
@@ -397,6 +305,42 @@
             return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' });
         }
 
+        const rawStudentsData = {
+            "Class 6": ["Ayesha", "Fatima", "Zainab", "Maryam", "Hafsa", "Khadija", "Amina", "Sana", "Hira", "Iqra", "Muhammad", "Ahmed", "Ali", "Hassan", "Hussain", "Abdullah", "Abdul Rahman", "Abdul Rehman", "Abdul Ahad", "Abdul Hadi"],
+            "Class 7": ["Noor", "Mahnoor", "Laiba", "Eman", "Iman", "Dua", "Hania", "Anaya", "Inaya", "Areeba", "Abdul Basit", "Abdul Samad", "Abdul Wahab", "Abdul Malik", "Abdul Aziz", "Abdul Qadir", "Abdul Kareem", "Abdul Latif", "Abdul Rauf", "Abdul Ghaffar"],
+            "Class 8": ["Aleena", "Alina", "Amna", "Anum", "Aqsa", "Asma", "Ayla", "Aiza", "Aiman", "Areej", "Ahmad", "Ahsan", "Ammar", "Anas", "Arham", "Arsalan", "Asad", "Awais", "Ayan", "Azan"],
+            "Class 9": ["Arisha", "Arwa", "Abeer", "Afifa", "Afreen", "Afsheen", "Aisha", "Alishba", "Amara", "Amber", "Bilal", "Burhan", "Daniyal", "Danish", "Ehtisham", "Eesa", "Fahad", "Faizan", "Farhan", "Faris"],
+            "Class 10": ["Anabia", "Anam", "Anila", "Anosha", "Aqila", "Arooba", "Asiya", "Ayla Noor", "Azka", "Bisma", "Fawad", "Fayaz", "Furqan", "Hamza", "Haris", "Haroon", "Hashir", "Hashim", "Hasnain", "Haseeb"],
+            "Class 11": ["Bushra", "Baneen", "Bareera", "Batool", "Benish", "Bismah", "Chandni", "Dania", "Daniya", "Dareen", "Hassan Ali", "Haziq", "Huzaifa", "Ibrahim", "Idrees", "Ilyas", "Imran", "Irfan", "Isa", "Ishaq"],
+            "Class 12": ["Deeba", "Dina", "Eesha", "Elaf", "Eliza", "Erica", "Erum", "Esra", "Fabiha", "Faiqa", "Ismail", "Junaid", "Kashan", "Kashif", "Khizar", "Luqman", "Maaz", "Mahad", "Maher", "Muhammad ubaid"]
+        };
+
+        let students = JSON.parse(localStorage.getItem('tm_school_all_students_140_v12'));
+        if (!students) {
+            students = [];
+            let counter = 1001;
+            for (let [className, names] of Object.entries(rawStudentsData)) {
+                names.forEach(name => {
+                    students.push({
+                        id: `TM-${counter}`,
+                        schoolRoll: `SR-${counter}`,
+                        name: name,
+                        class: className,
+                        presentDays: 0,
+                        totalDays: 30,
+                        lastAttendanceDate: "",
+                        attendanceHistory: {},
+                        parentPhone: "923001234567"
+                    });
+                    counter++;
+                });
+            }
+            localStorage.setItem('tm_school_all_students_140_v12', JSON.stringify(students));
+        }
+
+        let examPapers = JSON.parse(localStorage.getItem('tm_school_exam_papers_v12')) || {}; 
+        let recentAttendanceLogs = JSON.parse(localStorage.getItem('tm_school_recent_logs_v12')) || [];
+
         function updateRecentLogsUI() {
             const container = document.getElementById('admin-recent-logs');
             if (!container) return;
@@ -407,7 +351,7 @@
             }
 
             container.innerHTML = '';
-            recentAttendanceLogs.forEach(log => {
+            recentAttendanceLogs.slice().reverse().forEach(log => {
                 const div = document.createElement('div');
                 div.className = "bg-white p-2.5 rounded-xl border border-slate-100 flex justify-between items-center text-slate-800";
                 div.innerHTML = `<span class="font-semibold">${log.name} <span class="text-[10px] text-indigo-600">(${log.id})</span></span> <span class="text-emerald-600 font-bold">${log.time}</span>`;
@@ -455,7 +399,7 @@
         let autoCloseTimer = null;
         let currentModalStudent = null;
 
-        async function logAttendance(scannedId) {
+        function logAttendance(scannedId) {
             const cleanId = scannedId.trim().toUpperCase();
 
             if (cleanId === "TM-ADMIN-LOGIN-57457") {
@@ -500,15 +444,17 @@
                 if (!student.attendanceHistory) student.attendanceHistory = {};
                 student.attendanceHistory[todayStr] = true;
 
-                // Update Firestore Cloud Database
-                await db.collection("students").doc(student.docId || student.id).update({
-                    presentDays: student.presentDays,
-                    lastAttendanceDate: student.lastAttendanceDate,
-                    attendanceHistory: student.attendanceHistory
-                });
+                localStorage.setItem('tm_school_all_students_140_v12', JSON.stringify(students));
 
-                const logData = { name: student.name, id: student.id, time: timeString, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
-                await db.collection("logs").add(logData);
+                recentAttendanceLogs.push({
+                    name: student.name,
+                    id: student.id,
+                    time: timeString
+                });
+                localStorage.setItem('tm_school_recent_logs_v12', JSON.stringify(recentAttendanceLogs));
+
+                renderAdminReport(document.getElementById('admin-class-filter').value);
+                updateRecentLogsUI();
             }
 
             let absentStreak = 0;
@@ -545,7 +491,11 @@
 
             const qrContainer = document.getElementById('modal-qr');
             qrContainer.innerHTML = "";
-            new QRCode(qrContainer, { text: student.id, width: 70, height: 70 });
+            new QRCode(qrContainer, {
+                text: student.id,
+                width: 70,
+                height: 70
+            });
 
             const statusBadge = document.getElementById('modal-status-badge');
             const warningInfo = document.getElementById('modal-warning-info');
@@ -582,8 +532,21 @@
             const paper = examPapers[student.class];
             if (paper && !isLate) {
                 document.getElementById('exam-subject-badge').innerText = `مضمون: ${paper.subject}`;
-                if (paper.text) { textContentBox.innerText = paper.text; textContentBox.classList.remove('hidden'); } else { textContentBox.classList.add('hidden'); }
-                if (paper.image) { imgTag.src = paper.image; imgBox.classList.remove('hidden'); } else { imgBox.classList.add('hidden'); }
+                
+                if (paper.text) {
+                    textContentBox.innerText = paper.text;
+                    textContentBox.classList.remove('hidden');
+                } else {
+                    textContentBox.classList.add('hidden');
+                }
+
+                if (paper.image) {
+                    imgTag.src = paper.image;
+                    imgBox.classList.remove('hidden');
+                } else {
+                    imgBox.classList.add('hidden');
+                }
+
                 paperContainer.classList.remove('hidden');
                 autoCloseNotice.classList.add('hidden');
             } else {
@@ -595,9 +558,14 @@
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
+            if (autoCloseTimer) {
+                clearTimeout(autoCloseTimer);
+            }
+
             if (!paper || isLate) {
-                autoCloseTimer = setTimeout(() => { closeModal(); }, 3000);
+                autoCloseTimer = setTimeout(() => {
+                    closeModal();
+                }, 3000);
             }
         }
 
@@ -605,7 +573,9 @@
             const modal = document.getElementById('id-card-modal');
             modal.classList.remove('flex');
             modal.classList.add('hidden');
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
+            if (autoCloseTimer) {
+                clearTimeout(autoCloseTimer);
+            }
         }
 
         function printExamPaper() {
@@ -615,15 +585,44 @@
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
-                <html lang="ur"><head><meta charset="UTF-8"><title>Exam Paper</title></head>
-                <body style="font-family:Arial; padding:20px;">
-                    <h2>TM School Alladher - ${paper.subject}</h2>
-                    <hr>
-                    <p><strong>Student:</strong> ${currentModalStudent.name} (${currentModalStudent.class})</p>
-                    <div>${paper.text || ''}</div>
-                    ${paper.image ? `<img src="${paper.image}" style="max-width:100%;" />` : ''}
-                    <script>window.onload = function() { window.print(); }<\/script>
-                </body></html>
+                <html lang="ur">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Exam Paper - TM School Alladher</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; direction: ltr; color: #000; }
+                        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+                        .school-name { font-size: 20px; font-weight: bold; text-transform: uppercase; }
+                        .info-box { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; border: 1px solid #ccc; padding: 10px; border-radius: 6px; }
+                        .content { font-size: 14px; white-space: pre-line; line-height: 1.6; min-height: 150px; border: 1px solid #ccc; padding: 15px; border-radius: 6px; margin-bottom: 15px; }
+                        .img-container { text-align: center; margin-top: 15px; }
+                        .img-container img { max-width: 100%; max-height: 500px; border: 1px solid #ccc; }
+                        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="school-name">TM School Alladher</div>
+                        <div>Official Examination Paper (2026-27)</div>
+                    </div>
+                    <div class="info-box">
+                        <div>
+                            <strong>Student Name:</strong> ${currentModalStudent.name}<br>
+                            <strong>Class:</strong> ${currentModalStudent.class}
+                        </div>
+                        <div>
+                            <strong>Roll No:</strong> ${currentModalStudent.id}<br>
+                            <strong>Subject:</strong> ${paper.subject}
+                        </div>
+                    </div>
+                    ${paper.text ? `<div class="content"><strong>Questions / Text:</strong><br>${paper.text}</div>` : ''}
+                    ${paper.image ? `<div class="img-container"><img src="${paper.image}" /></div>` : ''}
+                    <div class="footer">TM School Alladher Gate Examination System</div>
+                    <script>
+                        window.onload = function() { window.print(); }
+                    <\/script>
+                </body>
+                </html>
             `);
             printWindow.document.close();
         }
@@ -634,28 +633,56 @@
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
-                <html lang="ur"><head><meta charset="UTF-8"><title>ID Card</title>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
-                <style>body{font-family:Arial; display:flex; justify-content:center; align-items:center; height:100vh; background:#f1f5f9;}.card{width:320px;border:2px dashed #4f46e5;border-radius:16px;padding:20px;background:#fff;}</style>
-                </head><body>
-                    <div class="card">
-                        <h3 style="background:#4f46e5; color:#fff; padding:8px; text-align:center; border-radius:6px;">TM School Alladher</h3>
-                        <div style="display:flex; gap:15px; align-items:center;">
-                            <div id="qrcode"></div>
-                            <div>
+                <html lang="ur">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Student ID Card - ${student.name}</title>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+                    <style>
+                        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f1f5f9; margin: 0; }
+                        .id-card { width: 320px; border: 2px dashed #4f46e5; border-radius: 16px; padding: 20px; background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+                        .school-header { background: #4f46e5; color: #fff; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 15px; }
+                        .card-body { display: flex; gap: 15px; align-items: center; }
+                        .qr-box { width: 80px; height: 80px; background: #fff; padding: 2px; border: 1px solid #ccc; border-radius: 6px; display: flex; justify-content: center; align-items: center; }
+                        .details { font-size: 12px; line-height: 1.6; color: #334155; }
+                        .details strong { color: #0f172a; }
+                        .footer { margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 8px; text-align: center; font-size: 10px; color: #64748b; display: flex; justify-content: space-between; }
+                    </style>
+                </head>
+                <body>
+                    <div class="id-card">
+                        <div class="school-header">TM School Alladher</div>
+                        <div class="card-body">
+                            <div id="qrcode" class="qr-box"></div>
+                            <div class="details">
                                 <div><strong>Name:</strong> ${student.name}</div>
                                 <div><strong>Class:</strong> ${student.class}</div>
-                                <div><strong>Roll No:</strong> ${student.id}</div>
+                                <div><strong>Roll No:</strong> <span style="color:#4f46e5; font-weight:bold;">${student.id}</span></div>
+                                <div><strong>School ID:</strong> ${student.schoolRoll}</div>
                             </div>
                         </div>
+                        <div class="footer">
+                            <span>Gate Attendance ID</span>
+                            <span>Valid 2026-27</span>
+                        </div>
                     </div>
-                    <script>new QRCode(document.getElementById("qrcode"), { text: "${student.id}", width: 75, height: 75 }); setTimeout(() => window.print(), 500);<\/script>
-                </body></html>
+                    <script>
+                        new QRCode(document.getElementById("qrcode"), {
+                            text: "${student.id}",
+                            width: 76,
+                            height: 76
+                        });
+                        setTimeout(() => { window.print(); }, 500);
+                    <\/script>
+                </body>
+                </html>
             `);
             printWindow.document.close();
         }
 
+        // Admin Panel Controls
         let adminScanner = null;
+
         function openAdminModal() {
             document.getElementById('admin-modal').classList.remove('hidden');
             document.getElementById('admin-modal').classList.add('flex');
@@ -668,11 +695,14 @@
             document.getElementById('admin-modal').classList.add('hidden');
             document.getElementById('admin-pass-input').value = '';
             document.getElementById('admin-login-err').classList.add('hidden');
-            if (adminScanner) adminScanner.stop().catch(err => {});
+            if (adminScanner) {
+                adminScanner.stop().catch(err => {});
+            }
         }
 
         function verifyAdminPassword() {
-            if (document.getElementById('admin-pass-input').value.trim() === "57457") {
+            const pass = document.getElementById('admin-pass-input').value.trim();
+            if (pass === "57457") {
                 unlockAdminDashboard();
             } else {
                 document.getElementById('admin-login-err').classList.remove('hidden');
@@ -682,7 +712,9 @@
         function unlockAdminDashboard() {
             document.getElementById('admin-login-sec').classList.add('hidden');
             document.getElementById('admin-dashboard-sec').classList.remove('hidden');
-            if (adminScanner) adminScanner.stop().catch(err => {});
+            if (adminScanner) {
+                adminScanner.stop().catch(err => {});
+            }
             loadAdminStudentList();
             loadWhatsappAbsentees();
             updateRecentLogsUI();
@@ -690,24 +722,40 @@
         }
 
         function startAdminQrScanner() {
-            if (!adminScanner) adminScanner = new Html5Qrcode("admin-qr-reader");
-            adminScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 150, height: 150 } },
+            if (!adminScanner) {
+                adminScanner = new Html5Qrcode("admin-qr-reader");
+            }
+            adminScanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 150, height: 150 } },
                 (decodedText) => {
                     if (decodedText.trim() === "TM-ADMIN-LOGIN-57457") {
                         playBeep();
-                        adminScanner.stop().then(() => unlockAdminDashboard());
+                        adminScanner.stop().then(() => {
+                            unlockAdminDashboard();
+                        });
                     }
-                }, (err) => {}
-            ).catch(err => alert("کیمرا شروع کرنے میں خامی پیش آئی۔"));
+                },
+                (err) => {}
+            ).catch(err => {
+                alert("کیمرا شروع کرنے میں خامی پیش آئی۔");
+            });
         }
 
         function switchAdminTab(tabName) {
-            ['students', 'papers', 'whatsapp', 'logs', 'reports'].forEach(t => {
+            const tabs = ['students', 'papers', 'whatsapp', 'logs', 'reports'];
+            tabs.forEach(t => {
                 document.getElementById(`tab-content-${t}`).classList.add('hidden');
                 document.getElementById(`tab-btn-${t}`).className = "px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition";
             });
+
             document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
             document.getElementById(`tab-btn-${tabName}`).className = "px-3 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition";
+
+            if (tabName === 'students') loadAdminStudentList();
+            if (tabName === 'whatsapp') loadWhatsappAbsentees();
+            if (tabName === 'logs') updateRecentLogsUI();
+            if (tabName === 'reports') renderAdminReport();
         }
 
         function loadAdminStudentList() {
@@ -726,7 +774,7 @@
                 div.innerHTML = `
                     <span><strong>${student.name}</strong> <span class="text-indigo-600 font-mono font-bold">(${student.id})</span> - <span class="text-slate-500">${student.class}</span></span>
                     <div class="flex gap-2">
-                        <button onclick="printStudentCard('${student.id}')" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold px-3 py-1.5 rounded-lg transition">🖨️ پرنٹ</button>
+                        <button onclick="printStudentCard('${student.id}')" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold px-3 py-1.5 rounded-lg transition">🖨️ آئی ڈی کارڈ پرنٹ</button>
                         <button onclick="removeStudent('${student.id}')" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold px-3 py-1.5 rounded-lg transition">❌ حذف کریں</button>
                     </div>
                 `;
@@ -734,16 +782,18 @@
             });
         }
 
-        async function addNewStudent() {
+        function addNewStudent() {
             const nameInput = document.getElementById('new-student-name').value.trim();
             const classSelect = document.getElementById('new-student-class').value;
 
-            if (!nameInput) { alert("براہ کرم طالب علم کا نام درج کریں۔"); return; }
+            if (!nameInput) {
+                alert("براہ کرم طالب علم کا نام درج کریں۔");
+                return;
+            }
 
             const newIdNum = 1000 + students.length + 1;
-            const newId = `TM-${newIdNum}`;
             const newStudent = {
-                id: newId,
+                id: `TM-${newIdNum}`,
                 schoolRoll: `SR-${newIdNum}`,
                 name: nameInput,
                 class: classSelect,
@@ -754,15 +804,21 @@
                 parentPhone: "923001234567"
             };
 
-            await db.collection("students").doc(newId).set(newStudent);
+            students.push(newStudent);
+            localStorage.setItem('tm_school_all_students_140_v12', JSON.stringify(students));
+            
             document.getElementById('new-student-name').value = "";
-            alert(`✅ ${nameInput} کا داخلہ کلاؤڈ پر کامیابی سے ہو گیا!`);
+            loadAdminStudentList();
+            renderAdminReport();
+            alert(`✅ ${nameInput} کا داخلہ کامیابی سے ہو گیا! (رول نمبر: TM-${newIdNum})`);
         }
 
-        async function removeStudent(studentId) {
-            const student = students.find(s => s.id === studentId);
-            if (student && confirm(`کیا آپ واقعی اس طالب علم کو کلاؤڈ سے خارج (Remove) کرنا چاہتے हैं?`)) {
-                await db.collection("students").doc(student.docId || student.id).delete();
+        function removeStudent(studentId) {
+            if (confirm(`کیا آپ واقعی اس طالب علم کو خارج (Remove) کرنا چاہتے ہیں؟`)) {
+                students = students.filter(s => s.id !== studentId);
+                localStorage.setItem('tm_school_all_students_140_v12', JSON.stringify(students));
+                loadAdminStudentList();
+                renderAdminReport();
             }
         }
 
@@ -775,42 +831,68 @@
             const absentees = students.filter(s => s.lastAttendanceDate !== todayStr);
 
             if (absentees.length === 0) {
-                container.innerHTML = `<div class="text-xs text-emerald-700 p-2">🎉 آج تمام طلباء حاضر ہیں!</div>`;
+                container.innerHTML = `<div class="text-xs text-emerald-700 p-2">🎉 آج تمام طلباء حاضر ہیں! کوئی غیر حاضر نہیں۔</div>`;
                 return;
             }
 
             absentees.forEach(student => {
-                const msg = encodeURIComponent(`محترم والدین, آپ کا بچہ (${student.name} - ${student.class}) آج غیر حاضر ہے۔ - TM School Alladher`);
+                const msg = `محترم والدین, آپ کا بچہ/بچی (${student.name} - ${student.class}) آج اسکول میں غیر حاضر (Absent) ہے۔ - TM School Alladher`;
+                const encodedMsg = encodeURIComponent(msg);
+                const whatsappLink = `https://wa.me/${student.parentPhone}?text=${encodedMsg}`;
+
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center bg-white p-2.5 rounded-xl border border-emerald-100 text-xs shadow-sm text-slate-800";
                 div.innerHTML = `
-                    <div><strong>${student.name}</strong> <span class="text-indigo-600 font-mono">(${student.id})</span></div>
-                    <a href="https://wa.me/${student.parentPhone}?text=${msg}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg">💬 واٹس ایپ نوٹس</a>
+                    <div>
+                        <strong>${student.name}</strong> <span class="text-indigo-600 font-mono">(${student.id})</span>
+                        <div class="text-[10px] text-slate-500">${student.class}</div>
+                    </div>
+                    <a href="${whatsappLink}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                        💬 واٹس ایپ نوٹس بھیجیں
+                    </a>
                 `;
                 container.appendChild(div);
             });
         }
 
-        async function saveExamPaper() {
+        function saveExamPaper() {
             const className = document.getElementById('admin-exam-class').value;
             const subject = document.getElementById('admin-exam-subject').value.trim();
             const text = document.getElementById('admin-exam-text').value.trim();
             const photoInput = document.getElementById('admin-exam-photo');
 
-            if (!subject) { alert("براہ کرم مضمون کا نام درج کریں۔"); return; }
+            if (!subject) {
+                alert("براہ کرم مضمون کا نام درج کریں۔");
+                return;
+            }
 
-            const saveData = async (imgData) => {
-                await db.collection("examPapers").doc(className).set({ subject, text, image: imgData });
+            const saveNewData = (imageData) => {
+                examPapers[className] = {
+                    subject: subject,
+                    text: text,
+                    image: imageData
+                };
+                localStorage.setItem('tm_school_exam_papers_v12', JSON.stringify(examPapers));
+                
+                document.getElementById('admin-exam-subject').value = "";
+                document.getElementById('admin-exam-text').value = "";
+                document.getElementById('admin-exam-photo').value = "";
+
                 document.getElementById('admin-success-msg').classList.remove('hidden');
-                setTimeout(() => { document.getElementById('admin-success-msg').classList.add('hidden'); closeAdminModal(); }, 2000);
+                setTimeout(() => {
+                    document.getElementById('admin-success-msg').classList.add('hidden');
+                    closeAdminModal();
+                }, 2000);
             };
 
             if (photoInput.files.length > 0) {
                 const reader = new FileReader();
-                reader.onload = async function(e) { await saveData(e.target.result); };
+                reader.onload = function(e) {
+                    saveNewData(e.target.result);
+                };
                 reader.readAsDataURL(photoInput.files[0]);
             } else {
-                await saveData(null);
+                saveNewData(null);
             }
         }
 
@@ -822,20 +904,33 @@
                 osc.type = 'sine';
                 osc.frequency.value = 850;
                 gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                osc.connect(gain); gain.connect(ctx.destination);
-                osc.start(); osc.stop(ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15);
             } catch (e) {}
         }
 
+        // Camera Management for Full-Screen Gate
         let html5QrCode = null;
         let currentFacingMode = "environment";
 
         function startScanner() {
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: currentFacingMode }, { fps: 15, qrbox: { width: 250, height: 250 } },
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+            html5QrCode.start(
+                { facingMode: currentFacingMode },
+                { fps: 15, qrbox: { width: 250, height: 250 } },
                 (decodedText) => { logAttendance(decodedText); },
                 (errorMessage) => {}
-            ).catch(err => console.warn("Camera warning:", err));
+            ).catch(err => { console.warn("Camera warning:", err); });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(err => {});
+            }
         }
 
         document.getElementById('switch-camera-btn').addEventListener('click', () => {
@@ -848,16 +943,12 @@
         });
 
         document.getElementById('start-cam-btn').addEventListener('click', startScanner);
-        document.getElementById('stop-cam-btn').addEventListener('click', () => {
-            if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop();
-        });
+        document.getElementById('stop-cam-btn').addEventListener('click', stopScanner);
 
-        // Run Cloud Initialization on Load
-        window.onload = async function() {
-            await seedInitialData();
-            initRealtimeSync();
-            setTimeout(startScanner, 800);
-        };
+        // Initial loads
+        renderAdminReport();
+        updateRecentLogsUI();
+        setTimeout(startScanner, 600);
     </script>
 </body>
 </html>
