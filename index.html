@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM Live Stream Pro</title>
+    <title>TM Mobile CCTV System</title>
+    <!-- PeerJS Library -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #121212;
-            color: #ffffff;
+            background: #0f172a;
+            color: #f8fafc;
             margin: 0;
             padding: 15px;
             display: flex;
@@ -17,75 +18,80 @@
         }
         .container {
             width: 100%;
-            max-width: 400px;
-            background: #1e1e1e;
+            max-width: 420px;
+            background: #1e293b;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border-radius: 14px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
         }
-        h2 { text-align: center; color: #4f46e5; margin-bottom: 10px; }
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; }
+        .status { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 15px; }
         .box {
-            background: #2d2d2d;
-            padding: 12px;
-            border-radius: 8px;
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 15px;
-            border: 1px solid #444;
+            border: 1px solid #334155;
         }
+        h3 { margin-top: 0; font-size: 15px; color: #cbd5e1; }
         video {
             width: 100%;
             height: 200px;
             background: #000;
-            border-radius: 6px;
-            margin-top: 8px;
+            border-radius: 8px;
+            margin-top: 10px;
             object-fit: cover;
         }
         input, button {
             width: 100%;
             padding: 12px;
             margin-top: 8px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: none;
             font-size: 15px;
             box-sizing: border-box;
+            outline: none;
         }
-        input { background: #333; color: #fff; border: 1px solid #555; }
-        button { font-weight: bold; cursor: pointer; }
-        .btn-start { background: #4f46e5; color: white; }
+        input { background: #1e293b; color: #fff; border: 1px solid #475569; }
+        button { font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-cam { background: #4f46e5; color: white; }
+        .btn-cam:hover { background: #4338ca; }
         .btn-connect { background: #10b981; color: white; }
-        .id-display {
-            background: #111;
+        .btn-connect:hover { background: #059669; }
+        .id-box {
+            background: #1e293b;
             padding: 10px;
             text-align: center;
             font-family: monospace;
             color: #f43f5e;
             font-size: 16px;
-            border-radius: 4px;
+            border-radius: 6px;
             margin-top: 5px;
-            word-break: break-all;
+            border: 1px dashed #475569;
+            user-select: all;
         }
-        #status { text-align: center; font-size: 13px; color: #aaa; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>TM Live Cam</h2>
-    <div id="status">Connecting to network...</div>
+    <h2>📷 TM CCTV Live</h2>
+    <div class="status" id="connectionStatus">Server se connect ho raha hai...</div>
 
-    <!-- Mobile 1: Camera Sender -->
+    <!-- Dukaan wala mobile (Camera Sender) -->
     <div class="box">
-        <h3>1. Apna Camera Chalu Karein</h3>
-        <button class="btn-start" onclick="startMyCamera()">Camera On Karein</button>
+        <h3>1. Dukaan Wala Mobile (Camera)</h3>
+        <p style="font-size: 12px; color: #94a3b8; margin: 0;">Yeh ID ap apne paas wale mobile me likhenge:</p>
+        <div class="id-box" id="myPeerId">Generating ID...</div>
+        <button class="btn-cam" onclick="startShopCamera()">Dukaan Ka Camera On Karein</button>
         <video id="localVideo" autoplay playsinline muted></video>
-        <p style="font-size: 12px; margin: 8px 0 2px 0; color: #aaa;">Yeh ID dusre mobile par lagانی hai:</p>
-        <div class="id-display" id="myIdBox">Wait karein...</div>
     </div>
 
-    <!-- Mobile 2: Stream Viewer -->
+    <!-- Aapke apne paas wala mobile (CCTV Viewer) -->
     <div class="box">
-        <h3>2. Doosre ka Stream Dekhein</h3>
-        <input type="text" id="targetIdInput" placeholder="Pehle mobile ki ID yahan likhein">
-        <button class="btn-connect" onclick="connectToStream()">Stream Dekhein</button>
+        <h3>2. Aap Ke Paas Wala Mobile (Viewer)</h3>
+        <input type="text" id="shopIdInput" placeholder="Dukaan wale mobile ki ID yahan daalein">
+        <button class="btn-connect" onclick="watchCCTV()">CCTV Live Dekhein</button>
         <video id="remoteVideo" autoplay playsinline></video>
     </div>
 </div>
@@ -95,102 +101,95 @@
     let localStream;
     let currentCall;
 
-    const statusEl = document.getElementById('status');
-    const myIdBox = document.getElementById('myIdBox');
+    const statusEl = document.getElementById('connectionStatus');
+    const myPeerIdEl = document.getElementById('myPeerId');
 
-    // Initialize Peer safely with public servers
-    function initPeer() {
-        peer = new Peer({
-            config: {
-                'iceServers': [
-                    { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:global.stun.twilio.com:3478' }
-                ]
-            }
-        });
+    // Public STUN servers taaki internet par connection block na ho
+    const peerOptions = {
+        config: {
+            'iceServers': [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+        }
+    };
 
-        peer.on('open', (id) => {
-            myIdBox.innerText = id;
-            statusEl.innerText = "Connected! Ready to stream.";
-            statusEl.style.color = "#10b981";
-        });
+    // Peer initialize karein
+    peer = new Peer(peerOptions);
 
-        peer.on('error', (err) => {
-            console.error(err);
-            statusEl.innerText = "Connection Error: " + err.type;
-            statusEl.style.color = "#f43f5e";
-        });
+    peer.on('open', (id) => {
+        myPeerIdEl.innerText = id;
+        statusEl.innerText = "Status: Connected to Server (Ready)";
+        statusEl.style.color = "#10b981";
+    });
 
-        // Jab koi doosra call kare
-        peer.on('call', (call) => {
-            if (!localStream) {
-                alert("Pehle aapko apna camera on karna hoga!");
-                return;
-            }
-            call.answer(localStream);
-            call.on('stream', (remoteStream) => {
-                document.getElementById('remoteVideo').srcObject = remoteStream;
-                statusEl.innerText = "Live Stream Connected!";
-            });
-        });
-    }
+    peer.on('error', (err) => {
+        statusEl.innerText = "Error: " + err.type;
+        statusEl.style.color = "#f43f5e";
+    });
 
-    // Camera on karne ka function
-    async function startMyCamera() {
+    // 1. Dukaan wale mobile ka camera start karna
+    async function startShopCamera() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { width: 1280, height: 720 }, 
+                video: { facingMode: 'environment' }, // Pichla camera (Back camera) jo dukaan dekhega
                 audio: true 
             });
             document.getElementById('localVideo').srcObject = localStream;
-            alert("Camera successfully chalu ho gaya hai!");
+            alert("Dukaan ka camera kamyaabi se on ho gaya hai! Ab yeh ID apne paas wale mobile me likhein.");
         } catch (err) {
             alert("Camera ki ijazat nahi mili: " + err);
         }
     }
 
-    // Doosre mobile se connect karne ka function
-    function connectToStream() {
-        const targetId = document.getElementById('targetIdInput').value.trim();
-        if (!targetId) {
-            alert("Barah-e-karam pehle mobile ki ID yahan darj karein!");
+    // Jab apne paas wale mobile se call aaye gi, tou dukaan wala mobile khud-ba-خود stream bhej dega
+    peer.on('call', (call) => {
+        if (!localStream) {
+            alert("Pehle dukaan wale mobile par camera on karein!");
+            return;
+        }
+        call.answer(localStream); // Camera ki live stream call karne wale ko bhej dein
+        call.on('stream', (remoteStream) => {
+            // Agar zaroorat ho
+        });
+        statusEl.innerText = "Status: CCTV Live Streaming Active!";
+        statusEl.style.color = "#10b981";
+    });
+
+    // 2. Aapke apne paas wale mobile se CCTV live dekhne ka function
+    function watchCCTV() {
+        const shopId = document.getElementById('shopIdInput').value.trim();
+        if (!shopId) {
+            alert("Barah-e-karam dukaan wale mobile ki ID yahan likhein!");
             return;
         }
 
-        if (!localStream) {
-            // Agar caller ke paas stream nahi hai toh pehle blank stream ya request bhejenge
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-                localStream = stream;
-                document.getElementById('localVideo').srcObject = localStream;
-                makeTheCall(targetId);
-            }).catch(() => {
-                makeTheCall(targetId);
-            });
-        } else {
-            makeTheCall(targetId);
-        }
+        statusEl.innerText = "CCTV connect ho raha hai...";
+
+        // Caller ke liye khali stream ya media stream banana zaroori hota hai
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+            makeCCTVCall(shopId, stream);
+        }).catch(() => {
+            // Agarmic/cam permission na bhi ho tab bhi call karne ki koshish karein
+            makeCCTVCall(shopId, new MediaStream());
+        });
     }
 
-    function makeTheCall(targetId) {
-        statusEl.innerText = "Connecting...";
-        const call = peer.call(targetId, localStream);
-        
+    function makeCCTVCall(shopId, stream) {
+        const call = peer.call(shopId, stream);
+
         call.on('stream', (remoteStream) => {
+            // Dukaan ke camera ki live video yahan show hogi!
             document.getElementById('remoteVideo').srcObject = remoteStream;
-            statusEl.innerText = "Connected! Stream chal rahi hai.";
+            statusEl.innerText = "Status: CCTV Live Connected! (Aap dukaan dekh rahe hain)";
             statusEl.style.color = "#10b981";
         });
 
         call.on('error', (err) => {
-            alert("Call error: " + err);
+            alert("Connection error: " + err);
         });
     }
-
-    // Run on load
-    initPeer();
 </script>
 
 </body>
 </html>
-
