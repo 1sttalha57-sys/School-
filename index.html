@@ -1,87 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Camera Stream</title>
+    <title>TM Live Camera Stream</title>
     <!-- PeerJS CDN -->
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
         }
-        h2 {
-            color: #333;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: #fff;
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 5px;
+            color: #818cf8;
+        }
+        .status-badge {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .section {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #334155;
+        }
+        h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #38bdf8;
+            margin-bottom: 10px;
         }
         video {
             width: 100%;
-            max-height: 300px;
+            height: 220px;
             background: #000;
-            border-radius: 4px;
+            border-radius: 8px;
+            object-fit: cover;
             margin-top: 10px;
         }
         input, button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-top: 10px;
-            font-size: 16px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            font-size: 15px;
+            border-radius: 8px;
+            border: none;
             box-sizing: border-box;
+            outline: none;
+        }
+        input {
+            background: #1e293b;
+            color: white;
+            border: 1px solid #475569;
+        }
+        input::placeholder {
+            color: var(--text-muted);
         }
         button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        .stream-btn {
-            background-color: #007bff;
-        }
-        .stream-btn:hover {
-            background-color: #0056b3;
-        }
-        #my-id {
             font-weight: bold;
-            color: #007bff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-cam {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-cam:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-connect {
+            background-color: var(--success);
+            color: white;
+        }
+        .btn-connect:hover {
+            background-color: #059669;
+        }
+        .id-box {
+            background: #334155;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            text-align: center;
+            font-size: 16px;
+            color: #f43f5e;
+            letter-spacing: 1px;
+            margin-top: 5px;
+            user-select: all;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Mobile Camera Streamer</h2>
-    <p>Aap ki ID: <span id="my-id">Generating...</span></p>
+    <h2>🎥 TM Live Stream</h2>
+    <div class="status-badge" id="connection-status">Connecting to server...</div>
 
-    <!-- Camera On Section (First Mobile) -->
-    <div>
-        <h3>1. Camera On Karen</h3>
-        <button onclick="startCamera()">Camera On Karen</button>
+    <!-- First Mobile Section (Camera Sender) -->
+    <div class="section">
+        <h3>1. Apni ID (Camera Share Karein)</h3>
+        <p style="font-size: 13px; margin: 0; color: var(--text-muted);">Yeh ID dusre mobile par likhni hai:</p>
+        <div class="id-box" id="my-id">Generating...</div>
+        <button class="btn-cam" onclick="startCamera()">Camera On Karein</button>
         <video id="localVideo" autoplay playsinline muted></video>
     </div>
 
-    <hr style="margin: 20px 0;">
-
-    <!-- Stream View Section (Second Mobile) -->
-    <div>
-        <h3>2. Stream Dekhen</h3>
-        <input type="text" id="remoteIdInput" placeholder="Pehle mobile ki ID yahan likhein">
-        <button class="stream-btn" onclick="connectToPeer()">Stream Dekhen</button>
+    <!-- Second Mobile Section (Stream Viewer) -->
+    <div class="section">
+        <h3>2. Stream Dekhein</h3>
+        <input type="text" id="remoteIdInput" placeholder="Pehle mobile ki ID yahan daalein">
+        <button class="btn-connect" onclick="connectToPeer()">Stream Shuru Karein</button>
         <video id="remoteVideo" autoplay playsinline></video>
     </div>
 </div>
@@ -89,48 +146,95 @@
 <script>
     let localStream;
     let peer;
-    let myPeerId;
+    let currentCall;
 
-    // PeerJS initialization
-    peer = new Peer();
+    const statusEl = document.getElementById('connection-status');
+    const myIdEl = document.getElementById('my-id');
+
+    // Free STUN servers configuration taaki network block na kare
+    const peerOptions = {
+        config: {
+            'iceServers': [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+        }
+    };
+
+    // Peer Initialization with STUN servers
+    peer = new Peer(peerOptions);
 
     peer.on('open', (id) => {
-        myPeerId = id;
-        document.getElementById('my-id').innerText = id;
+        myIdEl.innerText = id;
+        statusEl.innerText = "Status: Ready (Connected to Server)";
+        statusEl.style.color = "#10b981";
     });
 
-    // 1. Camera On karne ka function
+    peer.on('error', (err) => {
+        console.error(err);
+        statusEl.innerText = "Error: " + err.type;
+        statusEl.style.color = "#f43f5e";
+    });
+
+    // Camera On karne ka function
     async function startCamera() {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            localStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' }, // Back camera by default
+                audio: true 
+            });
             document.getElementById('localVideo').srcObject = localStream;
-            alert("Camera on ho gaya hai! Ab yeh ID dusre mobile mein darj karein: " + myPeerId);
+            alert("Camera on ho gaya hai!");
         } catch (error) {
-            alert("Camera access karne mein masla hai: " + error);
+            alert("Camera access nahi mil saka: " + error);
         }
     }
 
-    // Dusre mobile ki call ko accept karne ke liye
+    // Jab koi doosra mobile call karega
     peer.on('call', (call) => {
-        call.answer(localStream); // Apna camera stream wapas bhejen agar zaroorat ho
+        if (!localStream) {
+            alert("Pehle aapko apna camera on karna hoga!");
+            return;
+        }
+        call.answer(localStream); // Apna camera stream wapas bhejein
         call.on('stream', (remoteStream) => {
             document.getElementById('remoteVideo').srcObject = remoteStream;
+            statusEl.innerText = "Status: Live Streaming Connected!";
         });
     });
 
-    // 2. Stream dekhne ke liye connect karne ka function
+    // Stream dekhne ke liye connect karne ka function
     function connectToPeer() {
-        const remoteId = document.getElementById('remoteIdInput').value;
+        const remoteId = document.getElementById('remoteIdInput').value.trim();
         if (!remoteId) {
-            alert("Barah-e-karam pehle mobile ki ID likhein!");
+            alert("Barah-e-karam pehle mobile ki ID yahan likhein!");
             return;
         }
 
-        // Khali stream ke sath call initiate karein taaki samne wale ka camera dekh sakein
-        const call = peer.call(remoteId, new MediaStream());
+        if (!localStream) {
+            // Agar caller ke paas localStream nahi hai to khali stream ke sath call karein
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
+                localStream = stream;
+                document.getElementById('localVideo').srcObject = localStream;
+                makeCall(remoteId);
+            }).catch(() => {
+                makeCall(remoteId);
+            });
+        } else {
+            makeCall(remoteId);
+        }
+    }
+
+    function makeCall(remoteId) {
+        statusEl.innerText = "Connecting to peer...";
+        const call = peer.call(remoteId, localStream);
+        
         call.on('stream', (remoteStream) => {
             document.getElementById('remoteVideo').srcObject = remoteStream;
+            statusEl.innerText = "Status: Live Connected!";
+            statusEl.style.color = "#10b981";
         });
+
         call.on('error', (err) => {
             alert("Connection error: " + err);
         });
