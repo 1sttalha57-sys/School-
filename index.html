@@ -3,975 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM School Alladher - Ultimate Cloud Sync & Management System</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- HTML5 QR Code Scanner Library -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <!-- QRCode.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Mobile Camera Stream</title>
+    <!-- PeerJS CDN -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        video {
+            width: 100%;
+            max-height: 300px;
+            background: #000;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .stream-btn {
+            background-color: #007bff;
+        }
+        .stream-btn:hover {
+            background-color: #0056b3;
+        }
+        #my-id {
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
 </head>
-<body class="bg-slate-900 font-sans text-slate-100 min-h-screen flex flex-col justify-between">
+<body>
 
-    <!-- Header -->
-    <header class="bg-indigo-900/85 backdrop-blur-md text-white shadow-lg border-b border-indigo-700/50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div class="flex items-center gap-3">
-                <span class="text-3xl">🏫</span>
-                <div>
-                    <h1 class="text-xl font-bold tracking-wide">TM School Alladher</h1>
-                    <p class="text-xs text-indigo-300">Cloud Live Sync Gate & Management System</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3">
-                <button onclick="openAdminModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl border border-indigo-400 transition shadow-inner flex items-center gap-1.5">
-                    ⚙️ ایڈمن کنٹرول پینل
-                </button>
-                <div id="live-clock" class="text-xs bg-indigo-950 px-4 py-2 rounded-xl font-mono font-medium border border-indigo-800 shadow-inner">
-                    Loading Time...
-                </div>
-            </div>
-        </div>
-    </header>
+<div class="container">
+    <h2>Mobile Camera Streamer</h2>
+    <p>Aap ki ID: <span id="my-id">Generating...</span></p>
 
-    <!-- Main Content Container: Full-Screen Dedicated Scanner -->
-    <main class="max-w-4xl mx-auto px-4 py-8 flex-grow flex flex-col items-center justify-center w-full">
-        <div class="bg-slate-800/90 border border-slate-700 p-6 rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col items-center">
-            
-            <div class="w-full flex justify-between items-center mb-4">
-                <div>
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <span>📷</span> گیٹ اسکینر (آئی ڈی کارڈ سامنے لائیں)
-                    </h2>
-                    <p class="text-xs text-slate-400">تمام موبائلز پر لائیو کلاؤڈ سنک کے ذریعے حاضری جاری ہےـ</p>
-                </div>
-                <button id="switch-camera-btn" title="کیمرا تبدیل کریں" 
-                    class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1 border border-slate-600">
-                    🔄 کیمرا بدلیں
-                </button>
-            </div>
-
-            <!-- Full-Screen Camera Viewport -->
-            <div id="reader" class="w-full rounded-2xl overflow-hidden border-2 border-indigo-500/50 bg-black shadow-inner mb-4 min-h-[350px]"></div>
-
-            <!-- Camera Controls -->
-            <div class="flex gap-3 w-full">
-                <button id="start-cam-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-1.5">
-                    ▶ کیمرا آن کریں
-                </button>
-                <button id="stop-cam-btn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg flex items-center justify-center gap-1.5">
-                    ⏹ کیمرا بند کریں
-                </button>
-            </div>
-
-        </div>
-    </main>
-
-    <!-- Modal Popup for ID Card, Late Notice & Exam Paper (With Touch Pause Feature) -->
-    <div id="id-card-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 overflow-y-auto">
-        <div id="modal-box-content" class="bg-white text-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative border border-slate-100 my-8">
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
-            
-            <div class="border-2 dashed border-indigo-200 rounded-2xl p-4 bg-white shadow-inner relative overflow-hidden mb-4">
-                <div class="bg-indigo-600 text-white -mx-4 -mt-4 p-3 mb-4 flex justify-between items-center">
-                    <span class="font-bold text-sm uppercase tracking-wider">TM School Alladher</span>
-                    <span class="text-[10px] bg-indigo-700 px-2 py-0.5 rounded">Official ID</span>
-                </div>
-                
-                <div class="flex gap-4 items-center">
-                    <div id="modal-qr" class="w-20 h-20 bg-slate-50 border border-slate-200 rounded p-1 flex items-center justify-center flex-shrink-0"></div>
-                    <div class="space-y-1 text-xs flex-grow">
-                        <div><span class="text-slate-400 font-semibold">Name:</span> <strong id="modal-name" class="text-slate-900 text-sm"></strong></div>
-                        <div><span class="text-slate-400 font-semibold">Class:</span> <span id="modal-class" class="text-slate-700"></span></div>
-                        <div><span class="text-slate-400 font-semibold">Roll No:</span> <span id="modal-roll" class="font-mono text-indigo-600 font-bold"></span></div>
-                        <div><span class="text-slate-400 font-semibold">School ID:</span> <span id="modal-school-roll" class="font-mono text-slate-600"></span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Status Badges -->
-            <div id="modal-status-badge" class="p-3 rounded-xl text-center font-bold text-sm mb-2"></div>
-            <div id="modal-yesterday-info" class="p-2.5 rounded-xl text-center text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 mb-2"></div>
-            <div id="modal-warning-info" class="hidden p-2.5 rounded-xl text-center text-xs font-bold mb-4"></div>
-
-            <!-- Exam Paper Section -->
-            <div id="exam-paper-container" class="hidden border-2 border-amber-300 bg-amber-50 rounded-2xl p-4 mb-4">
-                <div class="flex justify-between items-center mb-2 border-b border-amber-200 pb-2">
-                    <h3 class="font-bold text-amber-900 text-sm flex items-center gap-1.5">
-                        <span>📝</span> امتحان کا پرچہ (Exam Paper)
-                    </h3>
-                    <span id="exam-subject-badge" class="bg-amber-200 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded"></span>
-                </div>
-                <div id="exam-paper-content" class="text-xs text-slate-800 whitespace-pre-line font-mono bg-white p-3 rounded-lg border border-amber-200 max-h-40 overflow-y-auto mb-3 hidden"></div>
-                <div id="exam-paper-image-box" class="mb-3 text-center hidden">
-                    <img id="exam-paper-img" src="" alt="Exam Paper Photo" class="max-h-60 mx-auto rounded-lg border border-amber-300 shadow-sm object-contain">
-                </div>
-                <button onclick="printExamPaper()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                    🖨️ پرچہ پرنٹ کریں (Print / PDF)
-                </button>
-            </div>
-
-            <div id="auto-close-notice" class="text-center text-[11px] text-indigo-600 font-medium animate-pulse">
-                ⏳ پاپ اپ روکنے کے لیے اس پر کلک/ٹچ کریں (ورنہ 3 سیکنڈ میں بند ہوگا)...
-            </div>
-        </div>
+    <!-- Camera On Section (First Mobile) -->
+    <div>
+        <h3>1. Camera On Karen</h3>
+        <button onclick="startCamera()">Camera On Karen</button>
+        <video id="localVideo" autoplay playsinline muted></video>
     </div>
 
-    <!-- Admin Panel Modal -->
-    <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white text-slate-800 rounded-3xl max-w-4xl w-full p-6 shadow-2xl relative border border-slate-100 my-8">
-            <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
-            
-            <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
-                <span>⚙️</span> ایڈمن کنٹرول پینل (لائیو سنکڈ)
-            </h2>
-            <p class="text-xs text-slate-500 mb-4">پاس ورڈ درج کریں یا ایڈمن کیو آر کوڈ اسکین کریں۔</p>
+    <hr style="margin: 20px 0;">
 
-            <div id="admin-login-sec" class="space-y-4 max-w-md mx-auto py-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">ایڈمن پاس ورڈ درج کریں</label>
-                    <input type="password" id="admin-pass-input" placeholder="پاس ورڈ لکھیں (57457)" 
-                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-mono">
-                </div>
-                <button onclick="verifyAdminPassword()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-sm">
-                    لاگ ان کریں
-                </button>
-                <div id="admin-login-err" class="text-xs text-rose-600 font-semibold hidden text-center">❌ غلط پاس ورڈ! درست پاس ورڈ (57457) درج کریں۔</div>
-
-                <div class="border-t border-slate-200 pt-4 mt-4 text-center">
-                    <p class="text-xs font-semibold text-slate-600 mb-2">📸 یا ایڈمن کیو آر کوڈ اسکین کریں</p>
-                    <div id="admin-qr-reader" class="w-full max-w-xs mx-auto rounded-xl overflow-hidden border border-slate-200 bg-slate-900 h-48"></div>
-                    <button onclick="startAdminQrScanner()" class="mt-2 bg-slate-800 text-white text-xs px-4 py-2 rounded-xl font-semibold">ایڈمن اسکینر آن کریں</button>
-                </div>
-            </div>
-
-            <!-- Admin Full Dashboard (Tabs) -->
-            <div id="admin-dashboard-sec" class="space-y-6 hidden">
-                <div class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-                    <button onclick="switchAdminTab('students')" id="tab-btn-students" class="px-3 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">👨‍🎓 اسٹوڈنٹس</button>
-                    <button onclick="switchAdminTab('timetable')" id="tab-btn-timetable" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition">⏰ ٹائم ٹیبل</button>
-                    <button onclick="switchAdminTab('teachers')" id="tab-btn-teachers" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition">👨‍🏫 ٹیچرز حاضری</button>
-                    <button onclick="switchAdminTab('papers')" id="tab-btn-papers" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition">📝 پرچہ اپلوڈ</button>
-                    <button onclick="switchAdminTab('whatsapp')" id="tab-btn-whatsapp" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition">💬 واٹس ایپ</button>
-                    <button onclick="switchAdminTab('logs')" id="tab-btn-logs" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition">⚡ لاگز</button>
-                    <button onclick="switchAdminTab('reports')" id="tab-btn-reports" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition">📊 رزلٹ</button>
-                </div>
-
-                <!-- Tab 1: Student Management -->
-                <div id="tab-content-students" class="space-y-4">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-3">➕ نیا داخلہ دیں (تمام موبائلز پر لائیو سنک ہوگا)</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-                            <input type="text" id="new-student-name" placeholder="طالب علم کا نام" class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs">
-                            <select id="new-student-class" class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
-                                <option value="Class 6">Class 6</option>
-                                <option value="Class 7">Class 7</option>
-                                <option value="Class 8">Class 8</option>
-                                <option value="Class 9">Class 9</option>
-                                <option value="Class 10">Class 10</option>
-                                <option value="Class 11">Class 11</option>
-                                <option value="Class 12">Class 12</option>
-                            </select>
-                            <button onclick="addNewStudent()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
-                                داخلہ دیں اور کارڈ بنائیں
-                            </button>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">📋 تمام طلباء کی لسٹ (لائیو کلاؤڈ ڈیٹا)</h3>
-                        <div class="max-h-60 overflow-y-auto border border-slate-200 rounded-2xl p-2 space-y-2" id="admin-student-list"></div>
-                    </div>
-                </div>
-
-                <!-- Tab 2: Timetable Management -->
-                <div id="tab-content-timetable" class="space-y-4 hidden">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase">⏰ اسکول کا پیریڈ وار ٹائم ٹیبل اپڈیٹ کریں</h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <input type="text" id="tt-period-name" placeholder="پیریڈ کا نام (مثلاً 1st Period - Math)" class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs">
-                            <input type="text" id="tt-period-time" placeholder="وقت (مثلاً 08:30 AM - 09:15 AM)" class="px-3 py-2.5 rounded-xl border border-slate-200 text-xs">
-                        </div>
-                        <button onclick="addTimetablePeriod()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
-                            ➕ ٹائم ٹیبل میں پیریڈ شامل کریں
-                        </button>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">📅 موجودہ ٹائم ٹیبل لسٹ</h3>
-                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-2xl p-2 space-y-2" id="admin-timetable-list"></div>
-                    </div>
-                </div>
-
-                <!-- Tab 3: Teachers Attendance -->
-                <div id="tab-content-teachers" class="space-y-4 hidden">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase">👨‍🏫 استاد کا نام درج کریں</h3>
-                        <div class="flex gap-3">
-                            <input type="text" id="new-teacher-name" placeholder="استاد کا نام (مثلاً Sir Ahmed)" class="flex-grow px-3 py-2.5 rounded-xl border border-slate-200 text-xs">
-                            <button onclick="addTeacher()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition">
-                                استاد شامل کریں
-                            </button>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">📋 اساتذہ کی روزانہ حاضری (لائیو سنک)</h3>
-                        <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-2xl p-2 space-y-2" id="admin-teachers-list"></div>
-                    </div>
-                </div>
-
-                <!-- Tab 4: Exam Paper Upload -->
-                <div id="tab-content-papers" class="space-y-4 hidden">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">کلاس منتخب کریں</label>
-                            <select id="admin-exam-class" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-slate-50">
-                                <option value="Class 6">Class 6</option>
-                                <option value="Class 7">Class 7</option>
-                                <option value="Class 8">Class 8</option>
-                                <option value="Class 9">Class 9</option>
-                                <option value="Class 10">Class 10</option>
-                                <option value="Class 11">Class 11</option>
-                                <option value="Class 12">Class 12</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">مضمون کا نام (Subject)</label>
-                            <input type="text" id="admin-exam-subject" placeholder="مثلاً Math / English" 
-                                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">سوالات کا متن</label>
-                        <textarea id="admin-exam-text" rows="3" placeholder="یہاں پرچے کے سوالات ٹائپ کریں..." 
-                            class="w-full p-3 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">یا پرچے کی فوٹو اپلوڈ کریں</label>
-                        <input type="file" id="admin-exam-photo" accept="image/*" 
-                            class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-slate-50 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                    </div>
-                    <button onclick="saveExamPaper()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
-                        ✅ نیا پرچہ اپلوڈ کریں (لائیو سنک ہوگا)
-                    </button>
-                    <div id="admin-success-msg" class="text-xs text-emerald-600 font-semibold hidden text-center">🎉 پرچہ کامیابی سے کلاؤڈ پر اپلوڈ ہو گیا ہے!</div>
-                </div>
-
-                <!-- Tab 5: WhatsApp Absentees Notice -->
-                <div id="tab-content-whatsapp" class="space-y-4 hidden">
-                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl">
-                        <h3 class="font-bold text-xs text-emerald-900 uppercase mb-1">💬 غیر حاضر طلباء کو واٹس ایپ نوٹس بھیجیں</h3>
-                        <p class="text-[11px] text-emerald-700 mb-3">یہاں سے آپ ایک کلک پر غیر حاضر اسٹوڈنٹس کے والدین کو واٹس ایپ پر حاضری کا الرٹ بھیج سکتے ہیںـ</p>
-                        <div class="space-y-2 max-h-60 overflow-y-auto" id="whatsapp-absent-list">
-                            <div class="text-xs text-slate-500">لائیو ڈیٹا لوڈ ہو رہا ہے...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 6: Recent Attendance Logs -->
-                <div id="tab-content-logs" class="space-y-4 hidden">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase mb-2">⚡ آج کی تازہ ترین حاضری کے لائیو لاگز</h3>
-                        <div id="admin-recent-logs" class="max-h-60 overflow-y-auto space-y-1.5 text-xs font-mono">
-                            <div class="text-slate-400 italic">ابھی تک کوئی اسکین نہیں ہوا...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 7: 30-Day Results Dashboard -->
-                <div id="tab-content-reports" class="space-y-4 hidden">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-xs text-slate-800 uppercase">📊 30 دن کا کارکردگی اور رزلٹ پورٹل</h3>
-                        <select id="admin-class-filter" onchange="renderAdminReport(this.value)" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold bg-slate-50">
-                            <option value="ALL">تمام کلاسیں (6 تا 12)</option>
-                            <option value="Class 6">Class 6</option>
-                            <option value="Class 7">Class 7</option>
-                            <option value="Class 8">Class 8</option>
-                            <option value="Class 9">Class 9</option>
-                            <option value="Class 10">Class 10</option>
-                            <option value="Class 11">Class 11</option>
-                            <option value="Class 12">Class 12</option>
-                        </select>
-                    </div>
-                    <div class="overflow-x-auto max-h-60 border border-slate-200 rounded-2xl">
-                        <table class="w-full text-left border-collapse text-xs">
-                            <thead class="bg-slate-50 sticky top-0 border-b border-slate-200">
-                                <tr class="text-slate-500 uppercase text-[10px] tracking-wider">
-                                    <th class="p-2.5 font-semibold">طالب علم کا نام</th>
-                                    <th class="p-2.5 font-semibold">کلاس</th>
-                                    <th class="p-2.5 font-semibold font-mono">رول نمبر</th>
-                                    <th class="p-2.5 font-semibold text-center">حاضر دن</th>
-                                    <th class="p-2.5 font-semibold text-center">پرسنٹیج (%)</th>
-                                    <th class="p-2.5 font-semibold text-right">اسٹیٹس</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-report-table-body" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+    <!-- Stream View Section (Second Mobile) -->
+    <div>
+        <h3>2. Stream Dekhen</h3>
+        <input type="text" id="remoteIdInput" placeholder="Pehle mobile ki ID yahan likhein">
+        <button class="stream-btn" onclick="connectToPeer()">Stream Dekhen</button>
+        <video id="remoteVideo" autoplay playsinline></video>
     </div>
+</div>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
-        TM School Alladher Gate Attendance System &copy; 2026-2027 | Multi-Device Live Sync Engine
-    </footer>
+<script>
+    let localStream;
+    let peer;
+    let myPeerId;
 
-    <!-- Application Script -->
-    <script>
-        let students = [];
-        let examPapers = {};
-        let recentAttendanceLogs = [];
-        let timetable = [];
-        let teachers = [];
+    // PeerJS initialization
+    peer = new Peer();
 
-        // Load data from shared cloud storage simulation
-        function loadCloudData() {
-            let savedStudents = localStorage.getItem('tm_school_cloud_students_v14');
-            let savedPapers = localStorage.getItem('tm_school_cloud_papers_v14');
-            let savedLogs = localStorage.getItem('tm_school_cloud_logs_v14');
-            let savedTT = localStorage.getItem('tm_school_cloud_tt_v14');
-            let savedTeachers = localStorage.getItem('tm_school_cloud_teachers_v14');
+    peer.on('open', (id) => {
+        myPeerId = id;
+        document.getElementById('my-id').innerText = id;
+    });
 
-            if (!savedStudents) {
-                const rawStudentsData = {
-                    "Class 6": ["Ayesha", "Fatima", "Zainab", "Maryam", "Hafsa", "Khadija", "Amina", "Sana", "Hira", "Iqra", "Muhammad", "Ahmed", "Ali", "Hassan", "Hussain", "Abdullah", "Abdul Rahman", "Abdul Rehman", "Abdul Ahad", "Abdul Hadi"],
-                    "Class 7": ["Noor", "Mahnoor", "Laiba", "Eman", "Iman", "Dua", "Hania", "Anaya", "Inaya", "Areeba", "Abdul Basit", "Abdul Samad", "Abdul Wahab", "Abdul Malik", "Abdul Aziz", "Abdul Qadir", "Abdul Kareem", "Abdul Latif", "Abdul Rauf", "Abdul Ghaffar"],
-                    "Class 8": ["Aleena", "Alina", "Amna", "Anum", "Aqsa", "Asma", "Ayla", "Aiza", "Aiman", "Areej", "Ahmad", "Ahsan", "Ammar", "Anas", "Arham", "Arsalan", "Asad", "Awais", "Ayan", "Azan"],
-                    "Class 9": ["Arisha", "Arwa", "Abeer", "Afifa", "Afreen", "Afsheen", "Aisha", "Alishba", "Amara", "Amber", "Bilal", "Burhan", "Daniyal", "Danish", "Ehtisham", "Eesa", "Fahad", "Faizan", "Farhan", "Faris"],
-                    "Class 10": ["Anabia", "Anam", "Anila", "Anosha", "Aqila", "Arooba", "Asiya", "Ayla Noor", "Azka", "Bisma", "Fawad", "Fayaz", "Furqan", "Hamza", "Haris", "Haroon", "Hashir", "Hashim", "Hasnain", "Haseeb"],
-                    "Class 11": ["Bushra", "Baneen", "Bareera", "Batool", "Benish", "Bismah", "Chandni", "Dania", "Daniya", "Dareen", "Hassan Ali", "Haziq", "Huzaifa", "Ibrahim", "Idrees", "Ilyas", "Imran", "Irfan", "Isa", "Ishaq"],
-                    "Class 12": ["Deeba", "Dina", "Eesha", "Elaf", "Eliza", "Erica", "Erum", "Esra", "Fabiha", "Faiqa", "Ismail", "Junaid", "Kashan", "Kashif", "Khizar", "Luqman", "Maaz", "Mahad", "Maher", "Muhammad ubaid"]
-                };
-                students = [];
-                let counter = 1001;
-                for (let [className, names] of Object.entries(rawStudentsData)) {
-                    names.forEach(name => {
-                        students.push({
-                            id: `TM-${counter}`,
-                            schoolRoll: `SR-${counter}`,
-                            name: name,
-                            class: className,
-                            presentDays: 0,
-                            totalDays: 30,
-                            lastAttendanceDate: "",
-                            attendanceHistory: {},
-                            parentPhone: "923001234567"
-                        });
-                        counter++;
-                    });
-                }
-                timetable = [
-                    { name: "1st Period (Math)", time: "08:30 AM - 09:15 AM" },
-                    { name: "2nd Period (English)", time: "09:15 AM - 10:00 AM" },
-                    { name: "Break", time: "10:00 AM - 10:30 AM" },
-                    { name: "3rd Period (Science)", time: "10:30 AM - 11:15 AM" }
-                ];
-                teachers = [
-                    { name: "Sir Tariq", present: false },
-                    { name: "Ma'am Ayesha", present: false },
-                    { name: "Sir Bilal", present: false }
-                ];
-                saveCloudDataState();
-            } else {
-                students = JSON.parse(savedStudents);
-                examPapers = JSON.parse(savedPapers || "{}");
-                recentAttendanceLogs = JSON.parse(savedLogs || "[]");
-                timetable = JSON.parse(savedTT || "[]");
-                teachers = JSON.parse(savedTeachers || "[]");
-            }
-            renderAdminReport();
-            loadAdminStudentList();
-            loadTimetableList();
-            loadTeachersList();
-            updateRecentLogsUI();
+    // 1. Camera On karne ka function
+    async function startCamera() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+            alert("Camera on ho gaya hai! Ab yeh ID dusre mobile mein darj karein: " + myPeerId);
+        } catch (error) {
+            alert("Camera access karne mein masla hai: " + error);
         }
+    }
 
-        function saveCloudDataState() {
-            localStorage.setItem('tm_school_cloud_students_v14', JSON.stringify(students));
-            localStorage.setItem('tm_school_cloud_papers_v14', JSON.stringify(examPapers));
-            localStorage.setItem('tm_school_cloud_logs_v14', JSON.stringify(recentAttendanceLogs));
-            localStorage.setItem('tm_school_cloud_tt_v14', JSON.stringify(timetable));
-            localStorage.setItem('tm_school_cloud_teachers_v14', JSON.stringify(teachers));
-        }
-
-        // Auto sync check every 2 seconds across all connected devices
-        setInterval(() => {
-            let remoteStudents = localStorage.getItem('tm_school_cloud_students_v14');
-            if (remoteStudents) {
-                let parsed = JSON.parse(remoteStudents);
-                if (JSON.stringify(parsed) !== JSON.stringify(students)) {
-                    students = parsed;
-                    examPapers = JSON.parse(localStorage.getItem('tm_school_cloud_papers_v14') || "{}");
-                    recentAttendanceLogs = JSON.parse(localStorage.getItem('tm_school_cloud_logs_v14') || "[]");
-                    timetable = JSON.parse(localStorage.getItem('tm_school_cloud_tt_v14') || "[]");
-                    teachers = JSON.parse(localStorage.getItem('tm_school_cloud_teachers_v14') || "[]");
-                    renderAdminReport();
-                    loadAdminStudentList();
-                    loadTimetableList();
-                    loadTeachersList();
-                    updateRecentLogsUI();
-                }
-            }
-        }, 2000);
-
-        function updateClock() {
-            const now = new Date();
-            const options = { 
-                timeZone: 'Asia/Karachi',
-                weekday: 'long', year: 'numeric', month: 'short', day: 'numeric',
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
-            };
-            document.getElementById('live-clock').innerText = now.toLocaleString('en-US', options);
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        function getTodayPKT() {
-            return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' });
-        }
-
-        function getYesterdayPKT() {
-            const d = new Date();
-            d.setDate(d.getDate() - 1);
-            return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' });
-        }
-
-        function updateRecentLogsUI() {
-            const container = document.getElementById('admin-recent-logs');
-            if (!container) return;
-            if (recentAttendanceLogs.length === 0) {
-                container.innerHTML = `<div class="text-slate-400 italic">ابھی تک کوئی اسکین نہیں ہوا...</div>`;
-                return;
-            }
-            container.innerHTML = '';
-            recentAttendanceLogs.slice().reverse().forEach(log => {
-                const div = document.createElement('div');
-                div.className = "bg-white p-2.5 rounded-xl border border-slate-100 flex justify-between items-center text-slate-800";
-                div.innerHTML = `<span class="font-semibold">${log.name} <span class="text-[10px] text-indigo-600">(${log.id})</span></span> <span class="text-emerald-600 font-bold">${log.time}</span>`;
-                container.appendChild(div);
-            });
-        }
-
-        function renderAdminReport(filterClass = "ALL") {
-            const tbody = document.getElementById('admin-report-table-body');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            const filtered = filterClass === "ALL" ? students : students.filter(s => s.class === filterClass);
-            filtered.forEach(student => {
-                const percentage = Math.round((student.presentDays / student.totalDays) * 100);
-                let badgeClass = student.presentDays > 0 ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-amber-50 text-amber-700 border-amber-100";
-                let statusText = student.presentDays > 0 ? "حاضر" : "نیا سیشن";
-
-                const row = document.createElement('tr');
-                row.className = "hover:bg-slate-50 transition";
-                row.innerHTML = `
-                    <td class="p-2.5 font-medium text-slate-900">${student.name}</td>
-                    <td class="p-2.5 text-xs text-slate-500">${student.class}</td>
-                    <td class="p-2.5 font-mono text-xs font-semibold text-indigo-600">${student.id}</td>
-                    <td class="p-2.5 text-center font-semibold">${student.presentDays} / ${student.totalDays}</td>
-                    <td class="p-2.5 text-center font-bold text-slate-700">${percentage}%</td>
-                    <td class="p-2.5 text-right"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badgeClass}">${statusText}</span></td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        let lastScannedId = "";
-        let lastScanTime = 0;
-        let autoCloseTimer = null;
-        let isModalPaused = false;
-        let currentModalStudent = null;
-
-        function logAttendance(scannedId) {
-            const cleanId = scannedId.trim().toUpperCase();
-
-            if (cleanId === "TM-ADMIN-LOGIN-57457") {
-                playBeep();
-                openAdminModal();
-                return;
-            }
-            
-            const nowTime = Date.now();
-            if (cleanId === lastScannedId && (nowTime - lastScanTime) < 4000) return;
-            lastScannedId = cleanId;
-            lastScanTime = nowTime;
-
-            const student = students.find(s => s.id === cleanId);
-            if (!student) {
-                alert(`آئی ڈی "${cleanId}" سسٹم میں موجود نہیں۔`);
-                return;
-            }
-
-            currentModalStudent = student;
-            const todayStr = getTodayPKT();
-            const yesterdayStr = getYesterdayPKT();
-            
-            const now = new Date();
-            const pakistanTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Karachi', hour12: false });
-            const [currentHour, currentMinute] = pakistanTimeStr.split(':').map(Number);
-            const totalMinutes = currentHour * 60 + currentMinute;
-            const limitMinutes = 8 * 60 + 30; // 8:30 AM
-
-            const isLate = totalMinutes > limitMinutes;
-            const timeString = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Karachi', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-
-            let alreadyMarkedToday = (student.lastAttendanceDate === todayStr);
-
-            if (!alreadyMarkedToday && !isLate) {
-                student.presentDays += 1;
-                if (student.presentDays > student.totalDays) student.presentDays = student.totalDays;
-                student.lastAttendanceDate = todayStr;
-                
-                if (!student.attendanceHistory) student.attendanceHistory = {};
-                student.attendanceHistory[todayStr] = true;
-
-                recentAttendanceLogs.push({ name: student.name, id: student.id, time: timeString });
-                saveCloudDataState();
-                renderAdminReport(document.getElementById('admin-class-filter').value);
-                updateRecentLogsUI();
-            }
-
-            let absentStreak = 0;
-            let checkDate = new Date();
-            let hasRecordedHistory = Object.keys(student.attendanceHistory || {}).length > 0;
-
-            if (hasRecordedHistory) {
-                for (let i = 1; i <= 7; i++) {
-                    checkDate.setDate(checkDate.getDate() - 1);
-                    let dStr = checkDate.toLocaleDateString('en-CA', { timeZone: 'Asia/Karachi' });
-                    if (student.attendanceHistory[dStr]) break;
-                    else absentStreak++;
-                }
-            }
-
-            let wasPresentYesterday = student.attendanceHistory && student.attendanceHistory[yesterdayStr];
-            let yesterdayMsg = wasPresentYesterday ? "📅 کل کا ریکارڈ: آپ کل اسکول حاضر تھے ✅" : "📅 کل کا ریکارڈ: آپ کل غیر حاضر تھے ❌";
-            let yesterdayClass = wasPresentYesterday ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-rose-50 text-rose-800 border-rose-200";
-
-            let showAbsentWarning = (hasRecordedHistory && absentStreak >= 6);
-
-            showModal(student, alreadyMarkedToday, timeString, yesterdayMsg, yesterdayClass, isLate, showAbsentWarning, absentStreak);
-            playBeep();
-        }
-
-        function showModal(student, alreadyMarked, timeStr, yesterdayMsg, yesterdayClass, isLate, showAbsentWarning, absentStreak) {
-            document.getElementById('modal-name').innerText = student.name;
-            document.getElementById('modal-class').innerText = student.class;
-            document.getElementById('modal-roll').innerText = student.id;
-            document.getElementById('modal-school-roll').innerText = student.schoolRoll;
-
-            const qrContainer = document.getElementById('modal-qr');
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, { text: student.id, width: 70, height: 70 });
-
-            const statusBadge = document.getElementById('modal-status-badge');
-            const warningInfo = document.getElementById('modal-warning-info');
-
-            if (isLate) {
-                statusBadge.className = "p-3 rounded-xl text-center font-bold text-sm bg-rose-50 text-rose-800 border border-rose-200";
-                statusBadge.innerHTML = `❌ وقت ختم! آپ صبح 8:30 کے بعد لیٹ آئے ہیں (${timeStr}) - ABSENT`;
-            } else if (alreadyMarked) {
-                statusBadge.className = "p-3 rounded-xl text-center font-bold text-sm bg-amber-50 text-amber-800 border border-amber-200";
-                statusBadge.innerHTML = `⚠️ آج کی حاضری پہلے ہی لگ چکی ہے (${timeStr}) - PRESENT`;
-            } else {
-                statusBadge.className = "p-3 rounded-xl text-center font-bold text-sm bg-emerald-50 text-emerald-800 border border-emerald-200 animate-pulse";
-                statusBadge.innerHTML = `✅ کامیابی سے حاضری لگ گئی (${timeStr}) - PRESENT`;
-            }
-
-            if (showAbsentWarning) {
-                warningInfo.className = "p-2.5 rounded-xl text-center text-xs font-bold bg-rose-100 text-rose-900 border border-rose-300 mb-4";
-                warningInfo.innerHTML = `🚨 اہم نوٹس: آپ پچھلے ${absentStreak} دن سے غیر حاضر ہیں۔ آج اپنے والدین کو اسکول ساتھ لے کر آئیں!`;
-                warningInfo.classList.remove('hidden');
-            } else {
-                warningInfo.classList.add('hidden');
-            }
-
-            document.getElementById('modal-yesterday-info').className = `p-2.5 rounded-xl text-center text-xs font-semibold border ${yesterdayClass}`;
-            document.getElementById('modal-yesterday-info').innerText = yesterdayMsg;
-
-            const paperContainer = document.getElementById('exam-paper-container');
-            const textContentBox = document.getElementById('exam-paper-content');
-            const imgBox = document.getElementById('exam-paper-image-box');
-            const imgTag = document.getElementById('exam-paper-img');
-            const autoCloseNotice = document.getElementById('auto-close-notice');
-
-            const paper = examPapers[student.class];
-            if (paper && !isLate) {
-                document.getElementById('exam-subject-badge').innerText = `مضمون: ${paper.subject}`;
-                if (paper.text) { textContentBox.innerText = paper.text; textContentBox.classList.remove('hidden'); } else { textContentBox.classList.add('hidden'); }
-                if (paper.image) { imgTag.src = paper.image; imgBox.classList.remove('hidden'); } else { imgBox.classList.add('hidden'); }
-                paperContainer.classList.remove('hidden');
-                autoCloseNotice.classList.add('hidden');
-            } else {
-                paperContainer.classList.add('hidden');
-                autoCloseNotice.classList.remove('hidden');
-            }
-
-            isModalPaused = false;
-            const modal = document.getElementById('id-card-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
-
-            // 3-second auto close unless touched/paused
-            if (!paper || isLate) {
-                autoCloseTimer = setTimeout(() => {
-                    if (!isModalPaused) closeModal();
-                }, 3000);
-            }
-        }
-
-        // Pause auto close if user clicks/touches the popup modal box
-        document.getElementById('modal-box-content').addEventListener('click', () => {
-            isModalPaused = true;
-            document.getElementById('auto-close-notice').innerText = "⏸ پاپ اپ روک دیا گیا ہے (بند کرنے کے لیے اوپر ✖ دباؤ)";
-            document.getElementById('auto-close-notice').classList.remove('animate-pulse');
+    // Dusre mobile ki call ko accept karne ke liye
+    peer.on('call', (call) => {
+        call.answer(localStream); // Apna camera stream wapas bhejen agar zaroorat ho
+        call.on('stream', (remoteStream) => {
+            document.getElementById('remoteVideo').srcObject = remoteStream;
         });
+    });
 
-        function closeModal() {
-            const modal = document.getElementById('id-card-modal');
-            modal.classList.remove('flex');
-            modal.classList.add('hidden');
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
+    // 2. Stream dekhne ke liye connect karne ka function
+    function connectToPeer() {
+        const remoteId = document.getElementById('remoteIdInput').value;
+        if (!remoteId) {
+            alert("Barah-e-karam pehle mobile ki ID likhein!");
+            return;
         }
 
-        function printExamPaper() {
-            if (!currentModalStudent) return;
-            const paper = examPapers[currentModalStudent.class];
-            if (!paper) return;
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html lang="ur"><head><meta charset="UTF-8"><title>Exam Paper</title></head>
-                <body style="font-family:Arial; padding:20px;">
-                    <h2>TM School Alladher - ${paper.subject}</h2><hr>
-                    <p><strong>Student:</strong> ${currentModalStudent.name} (${currentModalStudent.class})</p>
-                    <div>${paper.text || ''}</div>
-                    ${paper.image ? `<img src="${paper.image}" style="max-width:100%;" />` : ''}
-                    <script>window.onload = function() { window.print(); }<\/script>
-                </body></html>
-            `);
-            printWindow.document.close();
-        }
-
-        function printStudentCard(studentId) {
-            const student = students.find(s => s.id === studentId);
-            if (!student) return;
-
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html lang="ur"><head><meta charset="UTF-8"><title>ID Card</title>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
-                <style>body{font-family:Arial; display:flex; justify-content:center; align-items:center; height:100vh; background:#f1f5f9;}.card{width:320px;border:2px dashed #4f46e5;border-radius:16px;padding:20px;background:#fff;}</style>
-                </head><body>
-                    <div class="card">
-                        <h3 style="background:#4f46e5; color:#fff; padding:8px; text-align:center; border-radius:6px;">TM School Alladher</h3>
-                        <div style="display:flex; gap:15px; align-items:center;">
-                            <div id="qrcode"></div>
-                            <div>
-                                <div><strong>Name:</strong> ${student.name}</div>
-                                <div><strong>Class:</strong> ${student.class}</div>
-                                <div><strong>Roll No:</strong> ${student.id}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <script>new QRCode(document.getElementById("qrcode"), { text: "${student.id}", width: 75, height: 75 }); setTimeout(() => window.print(), 500);<\/script>
-                </body></html>
-            `);
-            printWindow.document.close();
-        }
-
-        // Timetable & Teachers Management Functions
-        function addTimetablePeriod() {
-            const name = document.getElementById('tt-period-name').value.trim();
-            const time = document.getElementById('tt-period-time').value.trim();
-            if (!name || !time) { alert("براہ کرم نام اور وقت دونوں درج کریں۔"); return; }
-            timetable.push({ name, time });
-            saveCloudDataState();
-            document.getElementById('tt-period-name').value = "";
-            document.getElementById('tt-period-time').value = "";
-            loadTimetableList();
-        }
-
-        function loadTimetableList() {
-            const container = document.getElementById('admin-timetable-list');
-            if (!container) return;
-            container.innerHTML = "";
-            if (timetable.length === 0) {
-                container.innerHTML = `<div class="text-xs text-slate-400 p-2">کوئی پیریڈ موجود نہیں۔</div>`;
-                return;
-            }
-            timetable.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-white p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800";
-                div.innerHTML = `<span><strong>${item.name}</strong> - <span class="text-indigo-600 font-mono">${item.time}</span></span> <button onclick="removeTimetable(${index})" class="text-rose-600 font-bold px-2 py-1 bg-rose-50 rounded">حذف</button>`;
-                container.appendChild(div);
-            });
-        }
-
-        function removeTimetable(index) {
-            timetable.splice(index, 1);
-            saveCloudDataState();
-            loadTimetableList();
-        }
-
-        function addTeacher() {
-            const name = document.getElementById('new-teacher-name').value.trim();
-            if (!name) { alert("استاد کا نام درج کریں۔"); return; }
-            teachers.push({ name, present: true });
-            saveCloudDataState();
-            document.getElementById('new-teacher-name').value = "";
-            loadTeachersList();
-        }
-
-        function toggleTeacherAttendance(index) {
-            teachers[index].present = !teachers[index].present;
-            saveCloudDataState();
-            loadTeachersList();
-        }
-
-        function removeTeacher(index) {
-            teachers.splice(index, 1);
-            saveCloudDataState();
-            loadTeachersList();
-        }
-
-        function loadTeachersList() {
-            const container = document.getElementById('admin-teachers-list');
-            if (!container) return;
-            container.innerHTML = "";
-            if (teachers.length === 0) {
-                container.innerHTML = `<div class="text-xs text-slate-400 p-2">کوئی استاد موجود نہیں۔</div>`;
-                return;
-            }
-            teachers.forEach((t, index) => {
-                const statusBadge = t.present ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">حاضر (Present)</span>` : `<span class="bg-rose-100 text-rose-800 px-2 py-1 rounded font-bold">غیر حاضر (Absent)</span>`;
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-white p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800";
-                div.innerHTML = `<span><strong>${t.name}</strong> - ${statusBadge}</span> <div class="flex gap-1.5"><button onclick="toggleTeacherAttendance(${index})" class="bg-indigo-50 text-indigo-600 font-bold px-2.5 py-1 rounded">حاضری بدلیں</button><button onclick="removeTeacher(${index})" class="text-rose-600 font-bold px-2 py-1 bg-rose-50 rounded">حذف</button></div>`;
-                container.appendChild(div);
-            });
-        }
-
-        // Admin Panel Controls
-        let adminScanner = null;
-        function openAdminModal() {
-            document.getElementById('admin-modal').classList.remove('hidden');
-            document.getElementById('admin-modal').classList.add('flex');
-            document.getElementById('admin-login-sec').classList.remove('hidden');
-            document.getElementById('admin-dashboard-sec').classList.add('hidden');
-        }
-
-        function closeAdminModal() {
-            document.getElementById('admin-modal').classList.remove('flex');
-            document.getElementById('admin-modal').classList.add('hidden');
-            document.getElementById('admin-pass-input').value = '';
-            document.getElementById('admin-login-err').classList.add('hidden');
-            if (adminScanner) adminScanner.stop().catch(err => {});
-        }
-
-        function verifyAdminPassword() {
-            if (document.getElementById('admin-pass-input').value.trim() === "57457") {
-                unlockAdminDashboard();
-            } else {
-                document.getElementById('admin-login-err').classList.remove('hidden');
-            }
-        }
-
-        function unlockAdminDashboard() {
-            document.getElementById('admin-login-sec').classList.add('hidden');
-            document.getElementById('admin-dashboard-sec').classList.remove('hidden');
-            if (adminScanner) adminScanner.stop().catch(err => {});
-            loadAdminStudentList();
-            loadTimetableList();
-            loadTeachersList();
-            loadWhatsappAbsentees();
-            updateRecentLogsUI();
-            renderAdminReport();
-        }
-
-        function startAdminQrScanner() {
-            if (!adminScanner) adminScanner = new Html5Qrcode("admin-qr-reader");
-            adminScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 150, height: 150 } },
-                (decodedText) => {
-                    if (decodedText.trim() === "TM-ADMIN-LOGIN-57457") {
-                        playBeep();
-                        adminScanner.stop().then(() => unlockAdminDashboard());
-                    }
-                }, (err) => {}
-            ).catch(err => alert("کیمرا شروع کرنے میں خامی پیش آئی۔"));
-        }
-
-        function switchAdminTab(tabName) {
-            ['students', 'timetable', 'teachers', 'papers', 'whatsapp', 'logs', 'reports'].forEach(t => {
-                const el = document.getElementById(`tab-content-${t}`);
-                const btn = document.getElementById(`tab-btn-${t}`);
-                if (el) el.classList.add('hidden');
-                if (btn) btn.className = "px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 transition";
-            });
-            const activeEl = document.getElementById(`tab-content-${tabName}`);
-            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            if (activeEl) activeEl.classList.remove('hidden');
-            if (activeBtn) activeBtn.className = "px-3 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition";
-
-            if (tabName === 'students') loadAdminStudentList();
-            if (tabName === 'timetable') loadTimetableList();
-            if (tabName === 'teachers') loadTeachersList();
-            if (tabName === 'whatsapp') loadWhatsappAbsentees();
-            if (tabName === 'logs') updateRecentLogsUI();
-            if (tabName === 'reports') renderAdminReport();
-        }
-
-        function loadAdminStudentList() {
-            const listContainer = document.getElementById('admin-student-list');
-            if (!listContainer) return;
-            listContainer.innerHTML = "";
-            if (students.length === 0) {
-                listContainer.innerHTML = `<div class="text-xs text-slate-400 p-2">کوئی طالب علم موجود نہیں۔</div>`;
-                return;
-            }
-            students.forEach((student) => {
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 text-xs shadow-sm text-slate-800";
-                div.innerHTML = `
-                    <span><strong>${student.name}</strong> <span class="text-indigo-600 font-mono font-bold">(${student.id})</span> - <span class="text-slate-500">${student.class}</span></span>
-                    <div class="flex gap-2">
-                        <button onclick="printStudentCard('${student.id}')" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold px-3 py-1.5 rounded-lg transition">🖨️ پرنٹ</button>
-                        <button onclick="removeStudent('${student.id}')" class="bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold px-3 py-1.5 rounded-lg transition">❌ حذف کریں</button>
-                    </div>
-                `;
-                listContainer.appendChild(div);
-            });
-        }
-
-        function addNewStudent() {
-            const nameInput = document.getElementById('new-student-name').value.trim();
-            const classSelect = document.getElementById('new-student-class').value;
-            if (!nameInput) { alert("طالب علم کا نام درج کریں۔"); return; }
-
-            const newIdNum = 1000 + students.length + 1;
-            const newStudent = {
-                id: `TM-${newIdNum}`,
-                schoolRoll: `SR-${newIdNum}`,
-                name: nameInput,
-                class: classSelect,
-                presentDays: 0,
-                totalDays: 30,
-                lastAttendanceDate: "",
-                attendanceHistory: {},
-                parentPhone: "923001234567"
-            };
-
-            students.push(newStudent);
-            saveCloudDataState();
-            document.getElementById('new-student-name').value = "";
-            loadAdminStudentList();
-            renderAdminReport();
-            alert(`✅ ${nameInput} کا داخلہ کامیابی سے ہو گیا!`);
-        }
-
-        function removeStudent(studentId) {
-            if (confirm(`کیا آپ واقعی اس طالب علم کو خارج کرنا چاہتے ہیں؟`)) {
-                students = students.filter(s => s.id !== studentId);
-                saveCloudDataState();
-                loadAdminStudentList();
-                renderAdminReport();
-            }
-        }
-
-        function loadWhatsappAbsentees() {
-            const container = document.getElementById('whatsapp-absent-list');
-            if (!container) return;
-            container.innerHTML = "";
-            const todayStr = getTodayPKT();
-            const absentees = students.filter(s => s.lastAttendanceDate !== todayStr);
-
-            if (absentees.length === 0) {
-                container.innerHTML = `<div class="text-xs text-emerald-700 p-2">🎉 آج تمام طلباء حاضر ہیں!</div>`;
-                return;
-            }
-
-            absentees.forEach(student => {
-                const msg = encodeURIComponent(`محترم والدین, آپ کا بچہ (${student.name} - ${student.class}) آج غیر حاضر ہے۔ - TM School Alladher`);
-                const div = document.createElement('div');
-                div.className = "flex justify-between items-center bg-white p-2.5 rounded-xl border border-emerald-100 text-xs shadow-sm text-slate-800";
-                div.innerHTML = `
-                    <div><strong>${student.name}</strong> <span class="text-indigo-600 font-mono">(${student.id})</span></div>
-                    <a href="https://wa.me/${student.parentPhone}?text=${msg}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg">💬 واٹس ایپ نوٹس</a>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function saveExamPaper() {
-            const className = document.getElementById('admin-exam-class').value;
-            const subject = document.getElementById('admin-exam-subject').value.trim();
-            const text = document.getElementById('admin-exam-text').value.trim();
-            const photoInput = document.getElementById('admin-exam-photo');
-            if (!subject) { alert("مضمون کا نام درج کریں۔"); return; }
-
-            const saveData = (imgData) => {
-                examPapers[className] = { subject, text, image: imgData };
-                saveCloudDataState();
-                document.getElementById('admin-exam-subject').value = "";
-                document.getElementById('admin-exam-text').value = "";
-                document.getElementById('admin-exam-photo').value = "";
-                document.getElementById('admin-success-msg').classList.remove('hidden');
-                setTimeout(() => { document.getElementById('admin-success-msg').classList.add('hidden'); closeAdminModal(); }, 2000);
-            };
-
-            if (photoInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function(e) { saveData(e.target.result); };
-                reader.readAsDataURL(photoInput.files[0]);
-            } else {
-                saveData(null);
-            }
-        }
-
-        function playBeep() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.value = 850;
-                gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                osc.connect(gain); gain.connect(ctx.destination);
-                osc.start(); osc.stop(ctx.currentTime + 0.15);
-            } catch (e) {}
-        }
-
-        let html5QrCode = null;
-        let currentFacingMode = "environment";
-
-        function startScanner() {
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: currentFacingMode }, { fps: 15, qrbox: { width: 250, height: 250 } },
-                (decodedText) => { logAttendance(decodedText); },
-                (errorMessage) => {}
-            ).catch(err => console.warn("Camera warning:", err));
-        }
-
-        document.getElementById('switch-camera-btn').addEventListener('click', () => {
-            currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => startScanner());
-            } else {
-                startScanner();
-            }
+        // Khali stream ke sath call initiate karein taaki samne wale ka camera dekh sakein
+        const call = peer.call(remoteId, new MediaStream());
+        call.on('stream', (remoteStream) => {
+            document.getElementById('remoteVideo').srcObject = remoteStream;
         });
-
-        document.getElementById('start-cam-btn').addEventListener('click', startScanner);
-        document.getElementById('stop-cam-btn').addEventListener('click', () => {
-            if (html5QrCode && html5QrCode.isScanning) html5QrCode.stop();
+        call.on('error', (err) => {
+            alert("Connection error: " + err);
         });
+    }
+</script>
 
-        loadCloudData();
-        setTimeout(startScanner, 800);
-    </script>
 </body>
 </html>
