@@ -3,53 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTL Pro Live Cricket Broadcast Suite</title>
+    <title>MTL Pro Live Cricket Stream Suite</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #030712; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; padding: 5px; overflow-x: hidden; }
 
+        /* MODE SELECTOR */
         #modeHub {
-            width: 100%; max-width: 500px; background: #111827; border: 2px solid #374151; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); margin-top: 30px; text-align: center;
+            width: 100%; max-width: 450px; background: #111827; border: 2px solid #374151; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); margin-top: 40px; text-align: center;
         }
-        #modeHub h2 { color: #facc15; margin-bottom: 15px; font-size: 20px; }
-        .mode-btn-choice { display: block; width: 100%; padding: 12px; margin: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; transition: 0.2s; }
+        #modeHub h2 { color: #facc15; margin-bottom: 20px; font-size: 20px; }
+        .mode-btn-choice { display: block; width: 100%; padding: 14px; margin: 12px 0; font-size: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; transition: 0.2s; }
         .mode-btn-choice:active { transform: scale(0.97); }
 
-        .mode-landscape-full {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c1b, #030712); z-index: 9999; display: none; flex-direction: column; justify-content: space-between; padding: 20px;
-        }
-        .mode-portrait-full {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c1b, #030712); z-index: 9999; display: none; flex-direction: column; justify-content: space-between; padding: 10px;
-        }
-        .mode-compact {
-            width: 100%; max-width: 420px; background: #0f0c1b; border: 2px solid #7c3aed; border-radius: 10px; display: none; margin-top: 10px; overflow: hidden;
+        /* BROADCAST OVERLAY SCREEN (FULL LANDSCAPE) */
+        .broadcast-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c1b, #030712); z-index: 9999; display: none; flex-direction: column; justify-content: space-between; padding: 15px;
         }
 
-        .bc-top-banner { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e1b4b, #311042, #4c0519); padding: 12px 20px; border-bottom: 2px solid #9333ea; }
-        .bc-team-box { display: flex; align-items: center; gap: 10px; }
-        .bc-flag { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #38bdf8; overflow: hidden; background: #1e3a8a; display: flex; align-items: center; justify-content: center; }
+        .bc-top-banner { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e1b4b, #311042, #4c0519); padding: 12px 20px; border-bottom: 2px solid #9333ea; border-radius: 8px; }
+        .bc-team-box { display: flex; align-items: center; gap: 12px; }
+        .bc-flag { width: 45px; height: 45px; border-radius: 50%; border: 2px solid #38bdf8; overflow: hidden; background: #1e3a8a; display: flex; align-items: center; justify-content: center; }
         .bc-flag img { width: 100%; height: 100%; object-fit: cover; }
         .bc-team-info .team-name { font-size: 16px; font-weight: 900; color: #facc15; }
-        .bc-team-info .team-score { font-size: 26px; font-weight: 900; color: #fff; line-height: 1.1; }
+        .bc-team-info .team-score { font-size: 28px; font-weight: 900; color: #fff; line-height: 1.1; }
         .bc-team-info .team-overs { font-size: 13px; color: #fde047; font-weight: bold; }
 
         .bc-center-status { text-align: center; }
         .bc-status-title { font-size: 18px; font-weight: 900; color: #fbbf24; font-style: italic; }
-        .bc-ball-box { display: inline-flex; width: 38px; height: 38px; background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b); border-radius: 50%; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; color: #fff; box-shadow: 0 0 12px #ef4444; border: 2px solid #fca5a5; margin-top: 4px; }
+        .bc-ball-box { display: inline-flex; width: 40px; height: 40px; background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b); border-radius: 50%; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #fff; box-shadow: 0 0 12px #ef4444; border: 2px solid #fca5a5; margin-top: 4px; }
         .bc-ball-box.b-4 { background: #ec4899; border-color: #f472b6; }
         .bc-ball-box.b-6 { background: #ef4444; border-color: #fca5a5; }
         .bc-ball-box.b-w { background: #000; color: #ef4444; border-color: #ef4444; }
         .bc-ball-box.b-dot { background: #64748b; border-color: #cbd5e1; }
 
-        .bc-sub-banner { display: flex; justify-content: space-between; align-items: center; background: #110c1d; padding: 8px 15px; font-size: 14px; border-bottom: 1px solid #3b0764; }
-        .bc-stats-grid { display: grid; grid-template-columns: 2fr 1fr; background: #0b0f19; gap: 2px; flex-grow: 1; }
-        .bc-batters-table, .bc-bowler-card { background: #130c22; padding: 12px 15px; }
-        .bc-table-header, .bc-player-row { display: grid; grid-template-columns: 3fr 1fr 1fr 1fr 1fr; font-size: 13px; text-align: center; padding: 6px 0; }
+        .bc-sub-banner { display: flex; justify-content: space-between; align-items: center; background: #110c1d; padding: 10px 20px; font-size: 14px; border-bottom: 1px solid #3b0764; border-radius: 6px; }
+        
+        .bc-stats-grid { display: grid; grid-template-columns: 2fr 1fr; background: #0b0f19; gap: 4px; flex-grow: 1; margin-top: 10px; border-radius: 8px; overflow: hidden; }
+        .bc-batters-table, .bc-bowler-card { background: #130c22; padding: 15px; display: flex; flex-direction: column; justify-content: center; }
+        .bc-table-header, .bc-player-row { display: grid; grid-template-columns: 3fr 1fr 1fr 1fr 1fr; font-size: 14px; text-align: center; padding: 8px 0; }
         .bc-table-header { color: #facc15; font-weight: bold; border-bottom: 1px solid #3b0764; }
         .bc-player-row { color: #e2e8f0; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .bc-player-row.active-batter { color: #38bdf8; }
         .bc-player-row div:first-child { text-align: left; }
 
+        /* ADMIN CONTROLLER PANEL */
         .admin-panel { width: 100%; max-width: 500px; background: #111827; border: 1px solid #374151; border-radius: 12px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 15px; }
         .admin-header { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #10b981; text-align: center; }
         .form-group { background: #1f2937; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
@@ -63,26 +61,76 @@
 </head>
 <body>
 
+    <!-- SELECTOR HUB -->
     <div id="modeHub">
-        <h2>MTL Ultimate Sync Broadcast Suite</h2>
-        <p style="color: #9ca3af; font-size: 12px; margin-bottom: 15px;">Select display mode:</p>
-        <button class="mode-btn-choice" style="background: #3b82f6;" onclick="setMode('landscape-full')">1. Full Screen Landscape (OBS / Stream)</button>
-        <button class="mode-btn-choice" style="background: #8b5cf6;" onclick="setMode('portrait-full')">2. Full Screen Portrait (Phone Live)</button>
-        <button class="mode-btn-choice" style="background: #ec4899;" onclick="setMode('compact')">3. Compact Overlay</button>
-        <button class="mode-btn-choice" style="background: #10b981;" onclick="setMode('admin')">4. Admin Controller (Control Phone)</button>
+        <h2>MTL Live Match Control</h2>
+        <p style="color: #9ca3af; font-size: 12px; margin-bottom: 20px;">Choose your device role:</p>
+        <button class="mode-btn-choice" style="background: #3b82f6;" onclick="setMode('broadcast')">1. Open Live Broadcast Screen (For Stream)</button>
+        <button class="mode-btn-choice" style="background: #10b981;" onclick="setMode('admin')">2. Open Admin Controller (Your Phone)</button>
     </div>
 
-    <div id="landscapeOverlay" class="mode-landscape-full"></div>
-    <div id="portraitOverlay" class="mode-portrait-full"></div>
-    <div id="compactOverlay" class="mode-compact"></div>
+    <!-- BROADCAST SCREEN -->
+    <div id="broadcastScreen" class="broadcast-screen">
+        <div class="bc-top-banner">
+            <div class="bc-team-box">
+                <div class="bc-flag"><img id="elT1Flag" src="https://flagcdn.com/w80/nz.png" alt="T1"></div>
+                <div class="bc-team-info">
+                    <div class="team-name" id="elT1Name">NEW ZEALAND</div>
+                    <div class="team-score" id="elScore">36-1</div>
+                    <div class="team-overs" id="elOvers">4.1 OVERS</div>
+                </div>
+            </div>
+            <div class="bc-center-status">
+                <div class="bc-status-title" id="elStatus">BALL</div>
+                <div class="bc-ball-box b-dot" id="elBallIndicator">•</div>
+            </div>
+            <div class="bc-team-box" style="justify-content: flex-end; text-align: right;">
+                <div class="bc-team-info">
+                    <div class="team-name" id="elT2Name">INDIA</div>
+                    <div style="font-size: 11px; color: #cbd5e1;">LIVE STREAM</div>
+                </div>
+                <div class="bc-flag"><img id="elT2Flag" src="https://flagcdn.com/w80/in.png" alt="T2"></div>
+            </div>
+        </div>
 
+        <div class="bc-sub-banner">
+            <div>CRR: <span id="elCrr" style="color: #38bdf8; font-weight: bold;">8.64</span></div>
+            <div id="elPartnership" style="color: #facc15; font-weight: bold;">P'Ship: 32 (17)</div>
+            <div id="elWicketTicker" style="color: #f87171; font-style: italic; font-size: 13px;">Last Wkt: T Seifert 2 (6)</div>
+        </div>
+
+        <div class="bc-stats-grid">
+            <div class="bc-batters-table">
+                <div class="bc-table-header">
+                    <div>Batter</div><div>R</div><div>B</div><div>4s</div><div>6s</div>
+                </div>
+                <div class="bc-player-row active-batter">
+                    <div id="elB1Name">DARYL MITCHELL</div><div id="elB1Runs">13</div><div id="elB1Balls">7</div><div id="elB14s">2</div><div id="elB16s">0</div>
+                </div>
+                <div class="bc-player-row">
+                    <div id="elB2Name">FINN ALLEN</div><div id="elB2Runs">17</div><div id="elB2Balls">12</div><div id="elB24s">2</div><div id="elB26s">0</div>
+                </div>
+            </div>
+
+            <div class="bc-bowler-card">
+                <div style="color: #facc15; font-weight: bold; font-size: 13px; margin-bottom: 6px;">CURRENT BOWLER</div>
+                <div style="display: flex; justify-content: space-between; font-size: 15px; font-weight: bold;">
+                    <span id="elBowlName">PRINCE YADAV</span>
+                    <span id="elBowlFig" style="color: #38bdf8;">0-2 (0.2)</span>
+                </div>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 10px;" id="elRecentBalls">Recent: [0]</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN CONTROLLER PANEL -->
     <div id="adminPanel" class="admin-panel">
         <div class="admin-header">MTL Master Controller</div>
         
         <div class="form-group">
-            <label>Shareable Overlay Links:</label>
-            <div class="link-box" id="linkLandscape">Landscape Link: Generating...</div>
-            <button class="ctrl-btn" style="background:#3b82f6; width:100%; font-size:12px; padding:6px; margin-bottom:6px;" onclick="copyLink('landscape-full')">Copy Landscape Link</button>
+            <label>Live Broadcast Link (Open on 2nd Phone / OBS):</label>
+            <div class="link-box" id="linkBroadcast">Generating...</div>
+            <button class="ctrl-btn" style="background:#3b82f6; width:100%; font-size:12px; padding:6px;" onclick="copyLink()">Copy Broadcast Link</button>
         </div>
 
         <div class="form-group">
@@ -141,8 +189,6 @@
     </div>
 
     <script>
-        const broadcastChannel = new BroadcastChannel('mtl_live_broadcast_channel');
-
         let matchState = {
             t1Name: "NEW ZEALAND", t1Flag: "https://flagcdn.com/w80/nz.png",
             t2Name: "INDIA", t2Flag: "https://flagcdn.com/w80/in.png",
@@ -154,120 +200,54 @@
         };
 
         const urlParams = new URLSearchParams(window.location.search);
-        const activeMode = urlParams.get('mode');
+        const mode = urlParams.get('mode');
 
         window.onload = function() {
             let base = window.location.href.split('?')[0];
-            if(document.getElementById('linkLandscape')) {
-                document.getElementById('linkLandscape').innerText = base + "?mode=landscape-full";
+            if(document.getElementById('linkBroadcast')) {
+                document.getElementById('linkBroadcast').innerText = base + "?mode=broadcast";
             }
 
-            // Load from localStorage first
-            let saved = localStorage.getItem('mtl_ultimate_match_state');
+            // Load saved state
+            let saved = localStorage.getItem('mtl_stream_state');
             if(saved) {
                 matchState = JSON.parse(saved);
             }
 
-            if(activeMode) {
+            if(mode === 'broadcast') {
                 document.getElementById('modeHub').style.display = 'none';
-                if(activeMode === 'admin') {
-                    document.getElementById('adminPanel').style.display = 'block';
-                    loadAdminForm();
-                } else {
-                    renderOverlayShell(activeMode);
-                    renderOverlayContent();
-                }
+                document.getElementById('broadcastScreen').style.display = 'flex';
+                renderBroadcast();
+            } else if(mode === 'admin') {
+                document.getElementById('modeHub').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAdminForm();
             } else {
                 document.getElementById('modeHub').style.display = 'block';
             }
         };
 
-        // Listen for real-time updates across tabs/devices via LocalStorage & BroadcastChannel
-        window.addEventListener('storage', (e) => {
-            if(e.key === 'mtl_ultimate_match_state' && e.newValue) {
-                matchState = JSON.parse(e.newValue);
-                if(activeMode && activeMode !== 'admin') {
-                    renderOverlayContent();
+        // Auto-poll localStorage every 500ms so broadcast screen updates instantly from admin
+        setInterval(() => {
+            let saved = localStorage.getItem('mtl_stream_state');
+            if(saved) {
+                let newState = JSON.parse(saved);
+                if(JSON.stringify(newState) !== JSON.stringify(matchState)) {
+                    matchState = newState;
+                    if(mode === 'broadcast') {
+                        renderBroadcast();
+                    }
                 }
             }
-        });
-
-        broadcastChannel.onmessage = (event) => {
-            if(event.data) {
-                matchState = event.data;
-                if(activeMode && activeMode !== 'admin') {
-                    renderOverlayContent();
-                }
-            }
-        };
+        }, 500);
 
         function setMode(m) {
             window.location.href = window.location.href.split('?')[0] + "?mode=" + m;
         }
 
-        function copyLink(m) {
-            let link = window.location.href.split('?')[0] + "?mode=" + m;
-            navigator.clipboard.writeText(link).then(() => alert("Link Copied Successfully!"));
-        }
-
-        function renderOverlayShell(modeName) {
-            let containerId = modeName === 'landscape-full' ? 'landscapeOverlay' : (modeName === 'portrait-full' ? 'portraitOverlay' : 'compactOverlay');
-            let elem = document.getElementById(containerId);
-            elem.style.display = 'flex';
-
-            elem.innerHTML = `
-                <div class="bc-top-banner">
-                    <div class="bc-team-box">
-                        <div class="bc-flag"><img id="elT1Flag" src="" alt="T1"></div>
-                        <div class="bc-team-info">
-                            <div class="team-name" id="elT1Name"></div>
-                            <div class="team-score" id="elScore"></div>
-                            <div class="team-overs" id="elOvers"></div>
-                        </div>
-                    </div>
-                    <div class="bc-center-status">
-                        <div class="bc-status-title" id="elStatus">BALL</div>
-                        <div class="bc-ball-box b-dot" id="elBallIndicator">•</div>
-                    </div>
-                    <div class="bc-team-box" style="justify-content: flex-end; text-align: right;">
-                        <div class="bc-team-info">
-                            <div class="team-name" id="elT2Name"></div>
-                            <div style="font-size: 11px; color: #cbd5e1;">LIVE BROADCAST</div>
-                        </div>
-                        <div class="bc-flag"><img id="elT2Flag" src="" alt="T2"></div>
-                    </div>
-                </div>
-
-                <div class="bc-sub-banner">
-                    <div>CRR: <span id="elCrr" style="color: #38bdf8; font-weight: bold;"></span></div>
-                    <div id="elPartnership" style="color: #facc15; font-weight: bold;">P'Ship: 32 (17)</div>
-                    <div id="elWicketTicker" style="color: #f87171; font-style: italic; font-size: 12px;"></div>
-                </div>
-
-                <div class="bc-stats-grid">
-                    <div class="bc-batters-table">
-                        <div class="bc-table-header">
-                            <div>Batter</div><div>R</div><div>B</div><div>4s</div><div>6s</div>
-                        </div>
-                        <div class="bc-player-row active-batter">
-                            <div id="elB1Name"></div><div id="elB1Runs"></div><div id="elB1Balls"></div><div id="elB14s"></div><div id="elB16s"></div>
-                        </div>
-                        <div class="bc-player-row">
-                            <div id="elB2Name"></div><div id="elB2Runs"></div><div id="elB2Balls"></div><div id="elB24s"></div><div id="elB26s"></div>
-                        </div>
-                    </div>
-
-                    <div class="bc-bowler-card">
-                        <div style="color: #facc15; font-weight: bold; font-size: 12px; margin-bottom: 4px;">CURRENT BOWLER</div>
-                        <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;">
-                            <span id="elBowlName"></span>
-                            <span id="elBowlFig" style="color: #38bdf8;"></span>
-                        </div>
-                        <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;" id="elRecentBalls">Recent: •</div>
-                    </div>
-                </div>
-            `;
-            renderOverlayContent();
+        function copyLink() {
+            let link = window.location.href.split('?')[0] + "?mode=broadcast";
+            navigator.clipboard.writeText(link).then(() => alert("Broadcast Link Copied Successfully!"));
         }
 
         function syncState() {
@@ -287,8 +267,7 @@
             matchState.bowlName = document.getElementById('inBowlName').value;
             matchState.bowlFig = document.getElementById('inBowlFig').value;
 
-            localStorage.setItem('mtl_ultimate_match_state', JSON.stringify(matchState));
-            broadcastChannel.postMessage(matchState);
+            localStorage.setItem('mtl_stream_state', JSON.stringify(matchState));
         }
 
         function loadAdminForm() {
@@ -309,7 +288,83 @@
             document.getElementById('inBowlFig').value = matchState.bowlFig;
         }
 
-        function renderOverlayContent() {
-            if(!document.getElementById('elT1Name')) return;
+        function renderBroadcast() {
             document.getElementById('elT1Name').innerText = matchState.t1Name;
-            d
+            document.getElementById('elT2Name').innerText = matchState.t2Name;
+            document.getElementById('elScore').innerText = matchState.score;
+            document.getElementById('elOvers').innerText = matchState.overs + " OVERS";
+            document.getElementById('elCrr').innerText = matchState.crr;
+            document.getElementById('elStatus').innerText = matchState.status;
+            document.getElementById('elWicketTicker').innerText = matchState.wicketInfo;
+
+            let ballBox = document.getElementById('elBallIndicator');
+            ballBox.className = "bc-ball-box";
+            let res = matchState.lastResult !== undefined ? matchState.lastResult : "•";
+            ballBox.innerText = res;
+            if(res === 4) ballBox.classList.add('b-4');
+            else if(res === 6) ballBox.classList.add('b-6');
+            else if(res === 'W') ballBox.classList.add('b-w');
+            else if(res === 0) ballBox.classList.add('b-dot');
+
+            document.getElementById('elB1Name').innerText = matchState.b1Name;
+            document.getElementById('elB1Runs').innerText = matchState.b1Runs;
+            document.getElementById('elB1Balls').innerText = matchState.b1Balls;
+            document.getElementById('elB14s').innerText = matchState.b1_4 || 2;
+            document.getElementById('elB16s').innerText = matchState.b1_6 || 0;
+
+            document.getElementById('elB2Name').innerText = matchState.b2Name;
+            document.getElementById('elB2Runs').innerText = matchState.b2Runs;
+            document.getElementById('elB2Balls').innerText = matchState.b2Balls;
+            document.getElementById('elB24s').innerText = matchState.b2_4 || 2;
+            document.getElementById('elB26s').innerText = matchState.b2_6 || 0;
+
+            document.getElementById('elBowlName').innerText = matchState.bowlName;
+            document.getElementById('elBowlFig').innerText = matchState.bowlFig;
+
+            let recentHTML = "Recent: ";
+            if(matchState.recentBalls) {
+                matchState.recentBalls.forEach(b => { recentHTML += `[${b}] `; });
+            }
+            document.getElementById('elRecentBalls').innerText = recentHTML;
+        }
+
+        function recordBall(val) {
+            if(!matchState.recentBalls) matchState.recentBalls = [];
+            matchState.recentBalls.push(val);
+            if(matchState.recentBalls.length > 6) matchState.recentBalls.shift();
+            matchState.lastResult = val;
+
+            if(typeof val === 'number') {
+                matchState.b1Runs += val;
+                matchState.b1Balls += 1;
+                if(val === 4) matchState.b1_4 = (matchState.b1_4 || 2) + 1;
+                if(val === 6) matchState.b1_6 = (matchState.b1_6 || 0) + 1;
+            } else if(val === 'W') {
+                matchState.b1Balls += 1;
+            }
+
+            document.getElementById('inB1Runs').value = matchState.b1Runs;
+            document.getElementById('inB1Balls').value = matchState.b1Balls;
+
+            syncState();
+        }
+
+        function triggerWicketModal() {
+            let outInfo = prompt("Enter Wicket Details (e.g. T Seifert b Bowler 2 (6)):", "T Seifert 2 (6)");
+            let nextPlayer = prompt("Enter Next Incoming Batsman Name:", "New Batter");
+            if(outInfo && nextPlayer) {
+                matchState.wicketInfo = `Last Wkt: ${outInfo} | Next: ${nextPlayer}`;
+                recordBall('W');
+            }
+        }
+
+        function undoLastBall() {
+            if(matchState.recentBalls && matchState.recentBalls.length > 0) {
+                matchState.recentBalls.pop();
+                matchState.lastResult = matchState.recentBalls.length > 0 ? matchState.recentBalls[matchState.recentBalls.length - 1] : "•";
+                syncState();
+            }
+        }
+    </script>
+</body>
+</html>
