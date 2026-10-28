@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTL Ultimate Multi-Screen Broadcast Suite</title>
+    <title>MTL Live Cloud Broadcast Suite</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #030712; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; padding: 5px; overflow-x: hidden; }
 
-        /* --- MODE SELECTOR HUB --- */
         #modeHub {
             width: 100%; max-width: 500px; background: #111827; border: 2px solid #374151; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); margin-top: 30px; text-align: center;
         }
@@ -16,22 +17,16 @@
         .mode-btn-choice { display: block; width: 100%; padding: 12px; margin: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; transition: 0.2s; }
         .mode-btn-choice:active { transform: scale(0.97); }
 
-        /* --- FULL SCREEN LANDSCAPE MODE --- */
         .mode-landscape-full {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c1b, #030712); z-index: 9999; display: none; flex-direction: column; justify-content: space-between; padding: 20px;
         }
-
-        /* --- FULL SCREEN PORTRAIT MODE --- */
         .mode-portrait-full {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c1b, #030712); z-index: 9999; display: none; flex-direction: column; justify-content: space-between; padding: 10px;
         }
-
-        /* --- STANDARD COMPACT OVERLAY --- */
         .mode-compact {
             width: 100%; max-width: 420px; background: #0f0c1b; border: 2px solid #7c3aed; border-radius: 10px; display: none; margin-top: 10px; overflow: hidden;
         }
 
-        /* Common Broadcast Elements Styling */
         .bc-top-banner { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e1b4b, #311042, #4c0519); padding: 12px 20px; border-bottom: 2px solid #9333ea; }
         .bc-team-box { display: flex; align-items: center; gap: 10px; }
         .bc-flag { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #38bdf8; overflow: hidden; background: #1e3a8a; display: flex; align-items: center; justify-content: center; }
@@ -49,7 +44,6 @@
         .bc-ball-box.b-dot { background: #64748b; border-color: #cbd5e1; }
 
         .bc-sub-banner { display: flex; justify-content: space-between; align-items: center; background: #110c1d; padding: 8px 15px; font-size: 14px; border-bottom: 1px solid #3b0764; }
-        
         .bc-stats-grid { display: grid; grid-template-columns: 2fr 1fr; background: #0b0f19; gap: 2px; flex-grow: 1; }
         .bc-batters-table, .bc-bowler-card { background: #130c22; padding: 12px 15px; }
         .bc-table-header, .bc-player-row { display: grid; grid-template-columns: 3fr 1fr 1fr 1fr 1fr; font-size: 13px; text-align: center; padding: 6px 0; }
@@ -58,7 +52,6 @@
         .bc-player-row.active-batter { color: #38bdf8; }
         .bc-player-row div:first-child { text-align: left; }
 
-        /* --- ADMIN CONTROLLER PANEL --- */
         .admin-panel { width: 100%; max-width: 500px; background: #111827; border: 1px solid #374151; border-radius: 12px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 15px; }
         .admin-header { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #10b981; text-align: center; }
         .form-group { background: #1f2937; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
@@ -72,42 +65,26 @@
 </head>
 <body>
 
-    <!-- MODE SELECTOR HUB -->
     <div id="modeHub">
-        <h2>MTL Multi-Screen Scoreboard Suite</h2>
-        <p style="color: #9ca3af; font-size: 12px; margin-bottom: 15px;">Select how you want to open this link:</p>
-        
-        <button class="mode-btn-choice" style="background: #3b82f6;" onclick="setMode('landscape-full')">1. Full Screen Landscape (For Live Stream / OBS)</button>
-        <button class="mode-btn-choice" style="background: #8b5cf6;" onclick="setMode('portrait-full')">2. Full Screen Portrait (For Phone Live)</button>
-        <button class="mode-btn-choice" style="background: #ec4899;" onclick="setMode('compact')">3. Compact Overlay Mode</button>
-        <button class="mode-btn-choice" style="background: #10b981;" onclick="setMode('admin')">4. Admin Controller (Your Control Phone)</button>
+        <h2>MTL Cloud Broadcast Suite</h2>
+        <p style="color: #9ca3af; font-size: 12px; margin-bottom: 15px;">Select display mode:</p>
+        <button class="mode-btn-choice" style="background: #3b82f6;" onclick="setMode('landscape-full')">1. Full Screen Landscape (OBS / Stream)</button>
+        <button class="mode-btn-choice" style="background: #8b5cf6;" onclick="setMode('portrait-full')">2. Full Screen Portrait (Phone Live)</button>
+        <button class="mode-btn-choice" style="background: #ec4899;" onclick="setMode('compact')">3. Compact Overlay</button>
+        <button class="mode-btn-choice" style="background: #10b981;" onclick="setMode('admin')">4. Admin Controller (Control Phone)</button>
     </div>
 
-    <!-- 1. FULL SCREEN LANDSCAPE OVERLAY -->
-    <div id="landscapeOverlay" class="mode-landscape-full">
-        <!-- Content injected dynamically -->
-    </div>
+    <div id="landscapeOverlay" class="mode-landscape-full"></div>
+    <div id="portraitOverlay" class="mode-portrait-full"></div>
+    <div id="compactOverlay" class="mode-compact"></div>
 
-    <!-- 2. FULL SCREEN PORTRAIT OVERLAY -->
-    <div id="portraitOverlay" class="mode-portrait-full">
-        <!-- Content injected dynamically -->
-    </div>
-
-    <!-- 3. COMPACT OVERLAY -->
-    <div id="compactOverlay" class="mode-compact">
-        <!-- Content injected dynamically -->
-    </div>
-
-    <!-- 4. ADMIN CONTROLLER PANEL -->
     <div id="adminPanel" class="admin-panel">
-        <div class="admin-header">MTL Master Controller</div>
+        <div class="admin-header">MTL Cloud Master Controller</div>
         
         <div class="form-group">
-            <label>Shareable Overlay Links (For 2nd Mobile / GitHub / Stream):</label>
-            <div class="link-box" id="linkLandscape">Landscape Full Link: Generating...</div>
-            <button class="ctrl-btn" style="background:#3b82f6; width:100%; font-size:12px; padding:6px; margin-bottom:6px;" onclick="copyLink('landscape-full')">Copy Landscape Full Link</button>
-            <div class="link-box" id="linkPortrait">Portrait Full Link: Generating...</div>
-            <button class="ctrl-btn" style="background:#8b5cf6; width:100%; font-size:12px; padding:6px;" onclick="copyLink('portrait-full')">Copy Portrait Full Link</button>
+            <label>Shareable Links:</label>
+            <div class="link-box" id="linkLandscape">Landscape Link: Generating...</div>
+            <button class="ctrl-btn" style="background:#3b82f6; width:100%; font-size:12px; padding:6px; margin-bottom:6px;" onclick="copyLink('landscape-full')">Copy Landscape Link</button>
         </div>
 
         <div class="form-group">
@@ -166,6 +143,13 @@
     </div>
 
     <script>
+        // Firebase Public Test Configuration
+        const firebaseConfig = {
+            databaseURL: "https://mtl-cricket-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database().ref('matchState');
+
         let matchState = {
             t1Name: "NEW ZEALAND", t1Flag: "https://flagcdn.com/w80/nz.png",
             t2Name: "INDIA", t2Flag: "https://flagcdn.com/w80/in.png",
@@ -181,20 +165,25 @@
 
         window.onload = function() {
             let base = window.location.href.split('?')[0];
-            document.getElementById('linkLandscape').innerText = base + "?mode=landscape-full";
-            document.getElementById('linkPortrait').innerText = base + "?mode=portrait-full";
+            if(document.getElementById('linkLandscape')) {
+                document.getElementById('linkLandscape').innerText = base + "?mode=landscape-full";
+            }
 
             if(activeMode) {
                 document.getElementById('modeHub').style.display = 'none';
                 if(activeMode === 'admin') {
                     document.getElementById('adminPanel').style.display = 'block';
-                    loadAdminForm();
+                    dbRef.once('value', (snapshot) => {
+                        if(snapshot.exists()) {
+                            matchState = snapshot.val();
+                            loadAdminForm();
+                        }
+                    });
                 } else {
                     renderOverlayShell(activeMode);
-                    loadState();
-                    window.addEventListener('storage', (e) => {
-                        if(e.key === 'mtl_ultimate_match_state') {
-                            matchState = JSON.parse(e.newValue);
+                    dbRef.on('value', (snapshot) => {
+                        if(snapshot.exists()) {
+                            matchState = snapshot.val();
                             renderOverlayContent();
                         }
                     });
@@ -210,7 +199,7 @@
 
         function copyLink(m) {
             let link = window.location.href.split('?')[0] + "?mode=" + m;
-            navigator.clipboard.writeText(link).then(() => alert(m.toUpperCase() + " Link Copied Successfully!"));
+            navigator.clipboard.writeText(link).then(() => alert("Link Copied Successfully!"));
         }
 
         function renderOverlayShell(modeName) {
@@ -289,35 +278,25 @@
             matchState.bowlName = document.getElementById('inBowlName').value;
             matchState.bowlFig = document.getElementById('inBowlFig').value;
 
-            localStorage.setItem('mtl_ultimate_match_state', JSON.stringify(matchState));
-        }
-
-        function loadState() {
-            let saved = localStorage.getItem('mtl_ultimate_match_state');
-            if(saved) matchState = JSON.parse(saved);
-            renderOverlayContent();
+            dbRef.set(matchState);
         }
 
         function loadAdminForm() {
-            let saved = localStorage.getItem('mtl_ultimate_match_state');
-            if(saved) {
-                matchState = JSON.parse(saved);
-                document.getElementById('inT1Name').value = matchState.t1Name;
-                document.getElementById('inT2Name').value = matchState.t2Name;
-                document.getElementById('inScore').value = matchState.score;
-                document.getElementById('inOvers').value = matchState.overs;
-                document.getElementById('inCrr').value = matchState.crr;
-                document.getElementById('inStatus').value = matchState.status;
-                document.getElementById('inWicketInfo').value = matchState.wicketInfo;
-                document.getElementById('inB1Name').value = matchState.b1Name;
-                document.getElementById('inB1Runs').value = matchState.b1Runs;
-                document.getElementById('inB1Balls').value = matchState.b1Balls;
-                document.getElementById('inB2Name').value = matchState.b2Name;
-                document.getElementById('inB2Runs').value = matchState.b2Runs;
-                document.getElementById('inB2Balls').value = matchState.b2Balls;
-                document.getElementById('inBowlName').value = matchState.bowlName;
-                document.getElementById('inBowlFig').value = matchState.bowlFig;
-            }
+            document.getElementById('inT1Name').value = matchState.t1Name;
+            document.getElementById('inT2Name').value = matchState.t2Name;
+            document.getElementById('inScore').value = matchState.score;
+            document.getElementById('inOvers').value = matchState.overs;
+            document.getElementById('inCrr').value = matchState.crr;
+            document.getElementById('inStatus').value = matchState.status;
+            document.getElementById('inWicketInfo').value = matchState.wicketInfo;
+            document.getElementById('inB1Name').value = matchState.b1Name;
+            document.getElementById('inB1Runs').value = matchState.b1Runs;
+            document.getElementById('inB1Balls').value = matchState.b1Balls;
+            document.getElementById('inB2Name').value = matchState.b2Name;
+            document.getElementById('inB2Runs').value = matchState.b2Runs;
+            document.getElementById('inB2Balls').value = matchState.b2Balls;
+            document.getElementById('inBowlName').value = matchState.bowlName;
+            document.getElementById('inBowlFig').value = matchState.bowlFig;
         }
 
         function renderOverlayContent() {
@@ -381,7 +360,6 @@
             document.getElementById('inB1Balls').value = matchState.b1Balls;
 
             syncState();
-            loadAdminForm();
         }
 
         function triggerWicketModal() {
@@ -398,7 +376,6 @@
                 matchState.recentBalls.pop();
                 matchState.lastResult = matchState.recentBalls.length > 0 ? matchState.recentBalls[matchState.recentBalls.length - 1] : "•";
                 syncState();
-                loadAdminForm();
             }
         }
     </script>
