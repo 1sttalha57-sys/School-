@@ -1,195 +1,406 @@
 <!DOCTYPE html>
-<html lang="ur" dir="ltr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM Mobile CCTV System</title>
-    <!-- PeerJS Library -->
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <title>MTL Ultimate Multi-Screen Broadcast Suite</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #f8fafc;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #030712; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; padding: 5px; overflow-x: hidden; }
+
+        /* --- MODE SELECTOR HUB --- */
+        #modeHub {
+            width: 100%; max-width: 500px; background: #111827; border: 2px solid #374151; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); margin-top: 30px; text-align: center;
         }
-        .container {
-            width: 100%;
-            max-width: 420px;
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 14px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+        #modeHub h2 { color: #facc15; margin-bottom: 15px; font-size: 20px; }
+        .mode-btn-choice { display: block; width: 100%; padding: 12px; margin: 8px 0; font-size: 14px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; color: white; transition: 0.2s; }
+        .mode-btn-choice:active { transform: scale(0.97); }
+
+        /* --- FULL SCREEN LANDSCAPE MODE --- */
+        .mode-landscape-full {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c1b, #030712); z-index: 9999; display: none; flex-direction: column; justify-content: space-between; padding: 20px;
         }
-        h2 { text-align: center; color: #38bdf8; margin-bottom: 5px; }
-        .status { text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 15px; }
-        .box {
-            background: #0f172a;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #334155;
+
+        /* --- FULL SCREEN PORTRAIT MODE --- */
+        .mode-portrait-full {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f0c1b, #030712); z-index: 9999; display: none; flex-direction: column; justify-content: space-between; padding: 10px;
         }
-        h3 { margin-top: 0; font-size: 15px; color: #cbd5e1; }
-        video {
-            width: 100%;
-            height: 200px;
-            background: #000;
-            border-radius: 8px;
-            margin-top: 10px;
-            object-fit: cover;
+
+        /* --- STANDARD COMPACT OVERLAY --- */
+        .mode-compact {
+            width: 100%; max-width: 420px; background: #0f0c1b; border: 2px solid #7c3aed; border-radius: 10px; display: none; margin-top: 10px; overflow: hidden;
         }
-        input, button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            border-radius: 8px;
-            border: none;
-            font-size: 15px;
-            box-sizing: border-box;
-            outline: none;
-        }
-        input { background: #1e293b; color: #fff; border: 1px solid #475569; }
-        button { font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-cam { background: #4f46e5; color: white; }
-        .btn-cam:hover { background: #4338ca; }
-        .btn-connect { background: #10b981; color: white; }
-        .btn-connect:hover { background: #059669; }
-        .id-box {
-            background: #1e293b;
-            padding: 10px;
-            text-align: center;
-            font-family: monospace;
-            color: #f43f5e;
-            font-size: 16px;
-            border-radius: 6px;
-            margin-top: 5px;
-            border: 1px dashed #475569;
-            user-select: all;
-        }
+
+        /* Common Broadcast Elements Styling */
+        .bc-top-banner { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e1b4b, #311042, #4c0519); padding: 12px 20px; border-bottom: 2px solid #9333ea; }
+        .bc-team-box { display: flex; align-items: center; gap: 10px; }
+        .bc-flag { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #38bdf8; overflow: hidden; background: #1e3a8a; display: flex; align-items: center; justify-content: center; }
+        .bc-flag img { width: 100%; height: 100%; object-fit: cover; }
+        .bc-team-info .team-name { font-size: 16px; font-weight: 900; color: #facc15; }
+        .bc-team-info .team-score { font-size: 26px; font-weight: 900; color: #fff; line-height: 1.1; }
+        .bc-team-info .team-overs { font-size: 13px; color: #fde047; font-weight: bold; }
+
+        .bc-center-status { text-align: center; }
+        .bc-status-title { font-size: 18px; font-weight: 900; color: #fbbf24; font-style: italic; }
+        .bc-ball-box { display: inline-flex; width: 38px; height: 38px; background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b); border-radius: 50%; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; color: #fff; box-shadow: 0 0 12px #ef4444; border: 2px solid #fca5a5; margin-top: 4px; }
+        .bc-ball-box.b-4 { background: #ec4899; border-color: #f472b6; }
+        .bc-ball-box.b-6 { background: #ef4444; border-color: #fca5a5; }
+        .bc-ball-box.b-w { background: #000; color: #ef4444; border-color: #ef4444; }
+        .bc-ball-box.b-dot { background: #64748b; border-color: #cbd5e1; }
+
+        .bc-sub-banner { display: flex; justify-content: space-between; align-items: center; background: #110c1d; padding: 8px 15px; font-size: 14px; border-bottom: 1px solid #3b0764; }
+        
+        .bc-stats-grid { display: grid; grid-template-columns: 2fr 1fr; background: #0b0f19; gap: 2px; flex-grow: 1; }
+        .bc-batters-table, .bc-bowler-card { background: #130c22; padding: 12px 15px; }
+        .bc-table-header, .bc-player-row { display: grid; grid-template-columns: 3fr 1fr 1fr 1fr 1fr; font-size: 13px; text-align: center; padding: 6px 0; }
+        .bc-table-header { color: #facc15; font-weight: bold; border-bottom: 1px solid #3b0764; }
+        .bc-player-row { color: #e2e8f0; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .bc-player-row.active-batter { color: #38bdf8; }
+        .bc-player-row div:first-child { text-align: left; }
+
+        /* --- ADMIN CONTROLLER PANEL --- */
+        .admin-panel { width: 100%; max-width: 500px; background: #111827; border: 1px solid #374151; border-radius: 12px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 15px; }
+        .admin-header { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #10b981; text-align: center; }
+        .form-group { background: #1f2937; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 11px; color: #9ca3af; margin-bottom: 4px; font-weight: bold; }
+        input[type="text"], select { width: 100%; padding: 8px; background: #374151; border: 1px solid #4b5563; color: #fff; border-radius: 6px; font-size: 13px; margin-bottom: 6px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 5px; }
+        button.ctrl-btn { padding: 10px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; color: white; }
+        .ctrl-btn:active { transform: scale(0.96); }
+        .link-box { background: #0f172a; padding: 8px; border-radius: 6px; font-size: 11px; word-break: break-all; margin-bottom: 8px; border: 1px dashed #4b5563; color: #38bdf8; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>📷 TM CCTV Live</h2>
-    <div class="status" id="connectionStatus">Server se connect ho raha hai...</div>
-
-    <!-- Dukaan wala mobile (Camera Sender) -->
-    <div class="box">
-        <h3>1. Dukaan Wala Mobile (Camera)</h3>
-        <p style="font-size: 12px; color: #94a3b8; margin: 0;">Yeh ID ap apne paas wale mobile me likhenge:</p>
-        <div class="id-box" id="myPeerId">Generating ID...</div>
-        <button class="btn-cam" onclick="startShopCamera()">Dukaan Ka Camera On Karein</button>
-        <video id="localVideo" autoplay playsinline muted></video>
+    <!-- MODE SELECTOR HUB -->
+    <div id="modeHub">
+        <h2>MTL Multi-Screen Scoreboard Suite</h2>
+        <p style="color: #9ca3af; font-size: 12px; margin-bottom: 15px;">Select how you want to open this link:</p>
+        
+        <button class="mode-btn-choice" style="background: #3b82f6;" onclick="setMode('landscape-full')">1. Full Screen Landscape (For Live Stream / OBS)</button>
+        <button class="mode-btn-choice" style="background: #8b5cf6;" onclick="setMode('portrait-full')">2. Full Screen Portrait (For Phone Live)</button>
+        <button class="mode-btn-choice" style="background: #ec4899;" onclick="setMode('compact')">3. Compact Overlay Mode</button>
+        <button class="mode-btn-choice" style="background: #10b981;" onclick="setMode('admin')">4. Admin Controller (Your Control Phone)</button>
     </div>
 
-    <!-- Aapke apne paas wala mobile (CCTV Viewer) -->
-    <div class="box">
-        <h3>2. Aap Ke Paas Wala Mobile (Viewer)</h3>
-        <input type="text" id="shopIdInput" placeholder="Dukaan wale mobile ki ID yahan daalein">
-        <button class="btn-connect" onclick="watchCCTV()">CCTV Live Dekhein</button>
-        <video id="remoteVideo" autoplay playsinline></video>
+    <!-- 1. FULL SCREEN LANDSCAPE OVERLAY -->
+    <div id="landscapeOverlay" class="mode-landscape-full">
+        <!-- Content injected dynamically -->
     </div>
-</div>
 
-<script>
-    let peer;
-    let localStream;
-    let currentCall;
+    <!-- 2. FULL SCREEN PORTRAIT OVERLAY -->
+    <div id="portraitOverlay" class="mode-portrait-full">
+        <!-- Content injected dynamically -->
+    </div>
 
-    const statusEl = document.getElementById('connectionStatus');
-    const myPeerIdEl = document.getElementById('myPeerId');
+    <!-- 3. COMPACT OVERLAY -->
+    <div id="compactOverlay" class="mode-compact">
+        <!-- Content injected dynamically -->
+    </div>
 
-    // Public STUN servers taaki internet par connection block na ho
-    const peerOptions = {
-        config: {
-            'iceServers': [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:global.stun.twilio.com:3478' }
-            ]
+    <!-- 4. ADMIN CONTROLLER PANEL -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-header">MTL Master Controller</div>
+        
+        <div class="form-group">
+            <label>Shareable Overlay Links (For 2nd Mobile / GitHub / Stream):</label>
+            <div class="link-box" id="linkLandscape">Landscape Full Link: Generating...</div>
+            <button class="ctrl-btn" style="background:#3b82f6; width:100%; font-size:12px; padding:6px; margin-bottom:6px;" onclick="copyLink('landscape-full')">Copy Landscape Full Link</button>
+            <div class="link-box" id="linkPortrait">Portrait Full Link: Generating...</div>
+            <button class="ctrl-btn" style="background:#8b5cf6; width:100%; font-size:12px; padding:6px;" onclick="copyLink('portrait-full')">Copy Portrait Full Link</button>
+        </div>
+
+        <div class="form-group">
+            <label>Live Ball / Event Action:</label>
+            <div class="btn-grid">
+                <button class="ctrl-btn" style="background:#3b82f6;" onclick="recordBall(0)">0 (Dot)</button>
+                <button class="ctrl-btn" style="background:#3b82f6;" onclick="recordBall(1)">1 Run</button>
+                <button class="ctrl-btn" style="background:#3b82f6;" onclick="recordBall(2)">2 Runs</button>
+                <button class="ctrl-btn" style="background:#3b82f6;" onclick="recordBall(3)">3 Runs</button>
+                <button class="ctrl-btn" style="background:#ec4899;" onclick="recordBall(4)">4 (FOUR)</button>
+                <button class="ctrl-btn" style="background:#ef4444;" onclick="recordBall(6)">6 (SIX)</button>
+                <button class="ctrl-btn" style="background:#000; color:#ef4444; border:1px solid #ef4444;" onclick="triggerWicketModal()">WICKET</button>
+                <button class="ctrl-btn" style="background:#8b5cf6;" onclick="recordBall('wd')">WD</button>
+            </div>
+            <button class="ctrl-btn" style="background:#ef4444; width:100%; margin-top:6px;" onclick="undoLastBall()">Undo Last Action</button>
+        </div>
+
+        <div class="form-group">
+            <label>Match Setup & Score:</label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:5px;">
+                <div><label style="font-size:10px;">Batting Team</label><input type="text" id="inT1Name" value="NEW ZEALAND" oninput="syncState()"></div>
+                <div><label style="font-size:10px;">Bowling Team</label><input type="text" id="inT2Name" value="INDIA" oninput="syncState()"></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                <div><label style="font-size:10px;">Score</label><input type="text" id="inScore" value="36-1" oninput="syncState()"></div>
+                <div><label style="font-size:10px;">Overs</label><input type="text" id="inOvers" value="4.1" oninput="syncState()"></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-top:5px;">
+                <div><label style="font-size:10px;">CRR</label><input type="text" id="inCrr" value="8.64" oninput="syncState()"></div>
+                <div><label style="font-size:10px;">Status</label><input type="text" id="inStatus" value="BALL" oninput="syncState()"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Wicket Ticker Update:</label>
+            <input type="text" id="inWicketInfo" value="Last Wkt: T Seifert 2 (6) | Next: Incoming Player" oninput="syncState()">
+        </div>
+
+        <div class="form-group">
+            <label>Batters & Bowler Details:</label>
+            <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:5px; margin-bottom:5px;">
+                <input type="text" id="inB1Name" value="DARYL MITCHELL" oninput="syncState()">
+                <input type="text" id="inB1Runs" value="13" oninput="syncState()">
+                <input type="text" id="inB1Balls" value="7" oninput="syncState()">
+            </div>
+            <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:5px; margin-bottom:5px;">
+                <input type="text" id="inB2Name" value="FINN ALLEN" oninput="syncState()">
+                <input type="text" id="inB2Runs" value="17" oninput="syncState()">
+                <input type="text" id="inB2Balls" value="12" oninput="syncState()">
+            </div>
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:5px;">
+                <input type="text" id="inBowlName" value="PRINCE YADAV" oninput="syncState()">
+                <input type="text" id="inBowlFig" value="0-2 (0.2)" oninput="syncState()">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let matchState = {
+            t1Name: "NEW ZEALAND", t1Flag: "https://flagcdn.com/w80/nz.png",
+            t2Name: "INDIA", t2Flag: "https://flagcdn.com/w80/in.png",
+            score: "36-1", overs: "4.1", crr: "8.64", status: "BALL", lastResult: "•",
+            partnership: "P'Ship: 32 (17)", wicketInfo: "Last Wkt: T Seifert 2 (6) | Next: Incoming",
+            b1Name: "DARYL MITCHELL", b1Runs: 13, b1Balls: 7, b1_4: 2, b1_6: 0,
+            b2Name: "FINN ALLEN", b2Runs: 17, b2Balls: 12, b2_4: 2, b2_6: 0,
+            bowlName: "PRINCE YADAV", bowlFig: "0-2 (0.2)", recentBalls: [0]
+        };
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeMode = urlParams.get('mode');
+
+        window.onload = function() {
+            let base = window.location.href.split('?')[0];
+            document.getElementById('linkLandscape').innerText = base + "?mode=landscape-full";
+            document.getElementById('linkPortrait').innerText = base + "?mode=portrait-full";
+
+            if(activeMode) {
+                document.getElementById('modeHub').style.display = 'none';
+                if(activeMode === 'admin') {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    loadAdminForm();
+                } else {
+                    renderOverlayShell(activeMode);
+                    loadState();
+                    window.addEventListener('storage', (e) => {
+                        if(e.key === 'mtl_ultimate_match_state') {
+                            matchState = JSON.parse(e.newValue);
+                            renderOverlayContent();
+                        }
+                    });
+                }
+            } else {
+                document.getElementById('modeHub').style.display = 'block';
+            }
+        };
+
+        function setMode(m) {
+            window.location.href = window.location.href.split('?')[0] + "?mode=" + m;
         }
-    };
 
-    // Peer initialize karein
-    peer = new Peer(peerOptions);
-
-    peer.on('open', (id) => {
-        myPeerIdEl.innerText = id;
-        statusEl.innerText = "Status: Connected to Server (Ready)";
-        statusEl.style.color = "#10b981";
-    });
-
-    peer.on('error', (err) => {
-        statusEl.innerText = "Error: " + err.type;
-        statusEl.style.color = "#f43f5e";
-    });
-
-    // 1. Dukaan wale mobile ka camera start karna
-    async function startShopCamera() {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment' }, // Pichla camera (Back camera) jo dukaan dekhega
-                audio: true 
-            });
-            document.getElementById('localVideo').srcObject = localStream;
-            alert("Dukaan ka camera kamyaabi se on ho gaya hai! Ab yeh ID apne paas wale mobile me likhein.");
-        } catch (err) {
-            alert("Camera ki ijazat nahi mili: " + err);
-        }
-    }
-
-    // Jab apne paas wale mobile se call aaye gi, tou dukaan wala mobile khud-ba-خود stream bhej dega
-    peer.on('call', (call) => {
-        if (!localStream) {
-            alert("Pehle dukaan wale mobile par camera on karein!");
-            return;
-        }
-        call.answer(localStream); // Camera ki live stream call karne wale ko bhej dein
-        call.on('stream', (remoteStream) => {
-            // Agar zaroorat ho
-        });
-        statusEl.innerText = "Status: CCTV Live Streaming Active!";
-        statusEl.style.color = "#10b981";
-    });
-
-    // 2. Aapke apne paas wale mobile se CCTV live dekhne ka function
-    function watchCCTV() {
-        const shopId = document.getElementById('shopIdInput').value.trim();
-        if (!shopId) {
-            alert("Barah-e-karam dukaan wale mobile ki ID yahan likhein!");
-            return;
+        function copyLink(m) {
+            let link = window.location.href.split('?')[0] + "?mode=" + m;
+            navigator.clipboard.writeText(link).then(() => alert(m.toUpperCase() + " Link Copied Successfully!"));
         }
 
-        statusEl.innerText = "CCTV connect ho raha hai...";
+        function renderOverlayShell(modeName) {
+            let containerId = modeName === 'landscape-full' ? 'landscapeOverlay' : (modeName === 'portrait-full' ? 'portraitOverlay' : 'compactOverlay');
+            let elem = document.getElementById(containerId);
+            elem.style.display = 'flex';
 
-        // Caller ke liye khali stream ya media stream banana zaroori hota hai
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            makeCCTVCall(shopId, stream);
-        }).catch(() => {
-            // Agarmic/cam permission na bhi ho tab bhi call karne ki koshish karein
-            makeCCTVCall(shopId, new MediaStream());
-        });
-    }
+            elem.innerHTML = `
+                <div class="bc-top-banner">
+                    <div class="bc-team-box">
+                        <div class="bc-flag"><img id="elT1Flag" src="" alt="T1"></div>
+                        <div class="bc-team-info">
+                            <div class="team-name" id="elT1Name"></div>
+                            <div class="team-score" id="elScore"></div>
+                            <div class="team-overs" id="elOvers"></div>
+                        </div>
+                    </div>
+                    <div class="bc-center-status">
+                        <div class="bc-status-title" id="elStatus">BALL</div>
+                        <div class="bc-ball-box b-dot" id="elBallIndicator">•</div>
+                    </div>
+                    <div class="bc-team-box" style="justify-content: flex-end; text-align: right;">
+                        <div class="bc-team-info">
+                            <div class="team-name" id="elT2Name"></div>
+                            <div style="font-size: 11px; color: #cbd5e1;">LIVE BROADCAST</div>
+                        </div>
+                        <div class="bc-flag"><img id="elT2Flag" src="" alt="T2"></div>
+                    </div>
+                </div>
 
-    function makeCCTVCall(shopId, stream) {
-        const call = peer.call(shopId, stream);
+                <div class="bc-sub-banner">
+                    <div>CRR: <span id="elCrr" style="color: #38bdf8; font-weight: bold;"></span></div>
+                    <div id="elPartnership" style="color: #facc15; font-weight: bold;">P'Ship: 32 (17)</div>
+                    <div id="elWicketTicker" style="color: #f87171; font-style: italic; font-size: 12px;"></div>
+                </div>
 
-        call.on('stream', (remoteStream) => {
-            // Dukaan ke camera ki live video yahan show hogi!
-            document.getElementById('remoteVideo').srcObject = remoteStream;
-            statusEl.innerText = "Status: CCTV Live Connected! (Aap dukaan dekh rahe hain)";
-            statusEl.style.color = "#10b981";
-        });
+                <div class="bc-stats-grid">
+                    <div class="bc-batters-table">
+                        <div class="bc-table-header">
+                            <div>Batter</div><div>R</div><div>B</div><div>4s</div><div>6s</div>
+                        </div>
+                        <div class="bc-player-row active-batter">
+                            <div id="elB1Name"></div><div id="elB1Runs"></div><div id="elB1Balls"></div><div id="elB14s"></div><div id="elB16s"></div>
+                        </div>
+                        <div class="bc-player-row">
+                            <div id="elB2Name"></div><div id="elB2Runs"></div><div id="elB2Balls"></div><div id="elB24s"></div><div id="elB26s"></div>
+                        </div>
+                    </div>
 
-        call.on('error', (err) => {
-            alert("Connection error: " + err);
-        });
-    }
-</script>
+                    <div class="bc-bowler-card">
+                        <div style="color: #facc15; font-weight: bold; font-size: 12px; margin-bottom: 4px;">CURRENT BOWLER</div>
+                        <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold;">
+                            <span id="elBowlName"></span>
+                            <span id="elBowlFig" style="color: #38bdf8;"></span>
+                        </div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;" id="elRecentBalls">Recent: •</div>
+                    </div>
+                </div>
+            `;
+        }
 
+        function syncState() {
+            matchState.t1Name = document.getElementById('inT1Name').value;
+            matchState.t2Name = document.getElementById('inT2Name').value;
+            matchState.score = document.getElementById('inScore').value;
+            matchState.overs = document.getElementById('inOvers').value;
+            matchState.crr = document.getElementById('inCrr').value;
+            matchState.status = document.getElementById('inStatus').value;
+            matchState.wicketInfo = document.getElementById('inWicketInfo').value;
+            matchState.b1Name = document.getElementById('inB1Name').value;
+            matchState.b1Runs = parseInt(document.getElementById('inB1Runs').value) || 0;
+            matchState.b1Balls = parseInt(document.getElementById('inB1Balls').value) || 0;
+            matchState.b2Name = document.getElementById('inB2Name').value;
+            matchState.b2Runs = parseInt(document.getElementById('inB2Runs').value) || 0;
+            matchState.b2Balls = parseInt(document.getElementById('inB2Balls').value) || 0;
+            matchState.bowlName = document.getElementById('inBowlName').value;
+            matchState.bowlFig = document.getElementById('inBowlFig').value;
+
+            localStorage.setItem('mtl_ultimate_match_state', JSON.stringify(matchState));
+        }
+
+        function loadState() {
+            let saved = localStorage.getItem('mtl_ultimate_match_state');
+            if(saved) matchState = JSON.parse(saved);
+            renderOverlayContent();
+        }
+
+        function loadAdminForm() {
+            let saved = localStorage.getItem('mtl_ultimate_match_state');
+            if(saved) {
+                matchState = JSON.parse(saved);
+                document.getElementById('inT1Name').value = matchState.t1Name;
+                document.getElementById('inT2Name').value = matchState.t2Name;
+                document.getElementById('inScore').value = matchState.score;
+                document.getElementById('inOvers').value = matchState.overs;
+                document.getElementById('inCrr').value = matchState.crr;
+                document.getElementById('inStatus').value = matchState.status;
+                document.getElementById('inWicketInfo').value = matchState.wicketInfo;
+                document.getElementById('inB1Name').value = matchState.b1Name;
+                document.getElementById('inB1Runs').value = matchState.b1Runs;
+                document.getElementById('inB1Balls').value = matchState.b1Balls;
+                document.getElementById('inB2Name').value = matchState.b2Name;
+                document.getElementById('inB2Runs').value = matchState.b2Runs;
+                document.getElementById('inB2Balls').value = matchState.b2Balls;
+                document.getElementById('inBowlName').value = matchState.bowlName;
+                document.getElementById('inBowlFig').value = matchState.bowlFig;
+            }
+        }
+
+        function renderOverlayContent() {
+            document.getElementById('elT1Name').innerText = matchState.t1Name;
+            document.getElementById('elT2Name').innerText = matchState.t2Name;
+            document.getElementById('elT1Flag').src = matchState.t1Flag;
+            document.getElementById('elT2Flag').src = matchState.t2Flag;
+            document.getElementById('elScore').innerText = matchState.score;
+            document.getElementById('elOvers').innerText = matchState.overs + " OVERS";
+            document.getElementById('elCrr').innerText = matchState.crr;
+            document.getElementById('elStatus').innerText = matchState.status;
+            document.getElementById('elWicketTicker').innerText = matchState.wicketInfo;
+
+            let ballBox = document.getElementById('elBallIndicator');
+            ballBox.className = "bc-ball-box";
+            let res = matchState.lastResult !== undefined ? matchState.lastResult : "•";
+            ballBox.innerText = res;
+            if(res === 4) ballBox.classList.add('b-4');
+            else if(res === 6) ballBox.classList.add('b-6');
+            else if(res === 'W') ballBox.classList.add('b-w');
+            else if(res === 0) ballBox.classList.add('b-dot');
+
+            document.getElementById('elB1Name').innerText = matchState.b1Name;
+            document.getElementById('elB1Runs').innerText = matchState.b1Runs;
+            document.getElementById('elB1Balls').innerText = matchState.b1Balls;
+            document.getElementById('elB14s').innerText = matchState.b1_4 || 2;
+            document.getElementById('elB16s').innerText = matchState.b1_6 || 0;
+
+            document.getElementById('elB2Name').innerText = matchState.b2Name;
+            document.getElementById('elB2Runs').innerText = matchState.b2Runs;
+            document.getElementById('elB2Balls').innerText = matchState.b2Balls;
+            document.getElementById('elB24s').innerText = matchState.b2_4 || 2;
+            document.getElementById('elB26s').innerText = matchState.b2_6 || 0;
+
+            document.getElementById('elBowlName').innerText = matchState.bowlName;
+            document.getElementById('elBowlFig').innerText = matchState.bowlFig;
+
+            let recentHTML = "Recent: ";
+            if(matchState.recentBalls) {
+                matchState.recentBalls.forEach(b => { recentHTML += `[${b}] `; });
+            }
+            document.getElementById('elRecentBalls').innerText = recentHTML;
+        }
+
+        function recordBall(val) {
+            if(!matchState.recentBalls) matchState.recentBalls = [];
+            matchState.recentBalls.push(val);
+            if(matchState.recentBalls.length > 6) matchState.recentBalls.shift();
+            matchState.lastResult = val;
+
+            if(typeof val === 'number') {
+                matchState.b1Runs += val;
+                matchState.b1Balls += 1;
+                if(val === 4) matchState.b1_4 = (matchState.b1_4 || 2) + 1;
+                if(val === 6) matchState.b1_6 = (matchState.b1_6 || 0) + 1;
+            } else if(val === 'W') {
+                matchState.b1Balls += 1;
+            }
+
+            document.getElementById('inB1Runs').value = matchState.b1Runs;
+            document.getElementById('inB1Balls').value = matchState.b1Balls;
+
+            syncState();
+            loadAdminForm();
+        }
+
+        function triggerWicketModal() {
+            let outInfo = prompt("Enter Wicket Details (e.g. T Seifert b Bowler 2 (6)):", "T Seifert 2 (6)");
+            let nextPlayer = prompt("Enter Next Incoming Batsman Name:", "New Batter");
+            if(outInfo && nextPlayer) {
+                matchState.wicketInfo = `Last Wkt: ${outInfo} | Next: ${nextPlayer}`;
+                recordBall('W');
+            }
+        }
+
+        function undoLastBall() {
+            if(matchState.recentBalls && matchState.recentBalls.length > 0) {
+                matchState.recentBalls.pop();
+                matchState.lastResult = matchState.recentBalls.length > 0 ? matchState.recentBalls[matchState.recentBalls.length - 1] : "•";
+                syncState();
+                loadAdminForm();
+            }
+        }
+    </script>
 </body>
 </html>
